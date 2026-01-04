@@ -162,10 +162,9 @@ function serializeSectionsToHtml(sections: any[] | undefined): string | undefine
 
 
 // Fetch all articles from Strapi
-// Fetch all articles from Strapi
-export async function getArticles(): Promise<StrapiArticle[]> {
+export async function getArticles(): Promise<any[]> {
   try {
-    const query = "?sort=createdAt:desc&populate[cover]=*";
+    const query = "?sort=createdAt:desc&populate=deep"
 
     const res = await fetch(
       `${STRAPI_URL}/api/articles${query}`,
@@ -177,15 +176,15 @@ export async function getArticles(): Promise<StrapiArticle[]> {
         },
         next: { revalidate: 60 },
       }
-    );
+    )
 
-    if (!res.ok) return [];
+    if (!res.ok) return []
 
-    const json = await res.json();
-    return json?.data ?? [];
+    const json = await res.json()
+    return json?.data ?? []
   } catch (error) {
-    console.error("Fetch error:", error);
-    return [];
+    console.error("Fetch error:", error)
+    return []
   }
 }
 
@@ -194,10 +193,11 @@ export async function getArticleBySlug(
   slug: string
 ): Promise<StrapiArticle | null> {
   try {
+    const safeSlug = encodeURIComponent(slug)
+
     const query =
-      `?filters[slug][$eq]=${slug}` +
-      `&populate[sections][populate]=*` +
-      `&populate[cover][fields][0]=url`;
+      `?filters[slug][$eq]=${safeSlug}` +
+      `&populate=deep`
 
     const res = await fetch(
       `${STRAPI_URL}/api/articles${query}`,
@@ -209,34 +209,38 @@ export async function getArticleBySlug(
         },
         cache: 'no-store',
       }
-    );
+    )
 
     if (!res.ok) {
-      console.error('Article fetch failed:', res.status);
-      return null;
+      console.error('Article fetch failed:', res.status)
+      return null
     }
 
-    const json = await res.json();
-    return json?.data?.[0] ?? null;
+    const json = await res.json()
+    return json?.data?.[0] ?? null
   } catch (error) {
-    console.error("Fetch error:", error);
-    return null;
+    console.error("Fetch error:", error)
+    return null
   }
 }
 
 
+
 export function strapiToArticle(raw: any) {
-  const a = raw.attributes ?? raw;
+  const a = raw?.attributes ? raw.attributes : raw
 
   return {
-    title: a.title,
-    slug: a.slug,
-    content: a.content,
-    coverImage: a.cover?.data?.attributes?.url ?? null,
-    sections: a.sections ?? [],
-    publishedAt: a.publishedAt,
-  };
+    title: a?.title,
+    slug: a?.slug,
+    content: a?.content,
+    coverImage: a?.cover?.data
+      ? getStrapiImageUrl(a.cover.data.attributes.url)
+      : null,
+    sections: a?.sections ?? [],
+    publishedAt: a?.publishedAt,
+  }
 }
+
 
 // ========== POSTS (Alternative content type) ==========
 

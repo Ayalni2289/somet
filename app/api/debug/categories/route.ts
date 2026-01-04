@@ -1,46 +1,56 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337'
-  
+  const STRAPI_URL =
+    process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
+
   try {
-    // Get raw category data with Strapi v4 bracket notation
-    const res1 = await fetch(
+    // 1️⃣ Categories + Items
+    const resCategories = await fetch(
       `${STRAPI_URL}/api/categories?populate[categoryItems][populate]=image`,
       { cache: 'no-store' }
-    )
-    
-    const categories = await res1.json()
-    
-    // Get raw category-items with Strapi v4 bracket notation
-    const res2 = await fetch(
-      `${STRAPI_URL}/api/category-items?populate[category]=*&populate[image]=*`,
+    );
+
+    const categoriesJson = await resCategories.json();
+
+    // 2️⃣ Category Items (tekil kontrol için)
+    const resItems = await fetch(
+      `${STRAPI_URL}/api/category-items?populate=image&populate=category`,
       { cache: 'no-store' }
-    )
-    
-    const items = await res2.json()
-    
+    );
+
+    const itemsJson = await resItems.json();
+
+    const categories = categoriesJson.data || [];
+
     return NextResponse.json({
       categories: {
-        count: categories.data?.length || 0,
-        zihinselEngellilik: categories.data?.find((c: any) => c.slug === 'zihinsel-engellilik'),
-        allWithItems: categories.data?.map((c: any) => ({
-          id: c.id,
-          slug: c.slug,
-          title: c.title,
-          itemsCount: Array.isArray(c.categoryItems) ? c.categoryItems.length : 'not an array',
-          categoryItemsExists: c.hasOwnProperty('categoryItems'),
-          itemsExists: c.hasOwnProperty('items')
-        }))
+        count: categories.length,
+        allWithItems: categories.map((c: any) => {
+          const attrs = c.attributes || {};
+          const items = attrs.categoryItems?.data || [];
+
+          return {
+            id: c.id,
+            slug: attrs.slug,
+            title: attrs.title,
+            itemsCount: items.length,
+            categoryItemsType: typeof attrs.categoryItems,
+            categoryItemsIsArray: Array.isArray(items),
+          };
+        }),
       },
       categoryItems: {
-        count: items.data?.length || 0,
-        sample: items.data?.slice(0, 2)
-      }
-    })
+        count: itemsJson.data?.length || 0,
+        sample: itemsJson.data?.slice(0, 2) || [],
+      },
+    });
   } catch (error: any) {
-    return NextResponse.json({
-      error: error.message
-    }, { status: 500 })
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500 }
+    );
   }
 }

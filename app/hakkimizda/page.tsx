@@ -30,7 +30,7 @@ export default function TanimPage() {
             </div>
           </div>
 
-          <article style={{ maxWidth: 800,color: '#222', lineHeight: 1.8 , margin:0, auto: 'true'}}>
+          <article style={{ maxWidth: 800,color: '#222', lineHeight: 1.8 , margin: '0 auto'}}>
             <p style={{ textAlign: 'center', fontSize: '20px' }}>
             “<strong>SOMET</strong>, zihinsel engelliler arasında dayanışma sağlamak, engellinin toplumsallaştırılması olarak tanımlanan <strong>“Engelliye Özelleştirilmiş Gelişim ve Kazanım Modeli”</strong> ni uygulayarak tanıtmak, bu model içinde yer alan topluma dayalı eğitim görüşünü geliştirmek, tanıtmak, benimsetmek, yaymak ve örnek uygulamalar yapmak amacıyla kurumsal yapılar halinde faaliyet göstermektedir.”
             </p>

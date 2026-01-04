@@ -7,7 +7,6 @@ import {
 import ArticleTemplate from '@/components/ArticleTemplate';
 import CategoryTemplate from '@/components/CategoryTemplate';
 
-// ⬇️ ÇOK ÖNEMLİ (Vercel build-time render yapmasın)
 export const dynamic = 'force-dynamic';
 
 export default async function Page({
@@ -23,7 +22,9 @@ export default async function Page({
     parseInt(searchParams.page ?? '1', 10)
   );
 
-  // 1️⃣ ARTICLE
+  /* =========================
+     1️⃣ ARTICLE KONTROLÜ
+  ========================= */
   const articleRaw = await getArticleBySlug(slug);
   if (articleRaw) {
     const article = strapiToArticle(articleRaw);
@@ -36,33 +37,33 @@ export default async function Page({
     );
   }
 
-  // 2️⃣ CATEGORY
-  const categoryRaw = await getCategoryWithItems(slug);
-  if (categoryRaw) {
-    const data = categoryRaw.attributes ?? categoryRaw;
-    const rawItems = data.categoryItems?.data ?? data.categoryItems ?? [];
+  /* =========================
+     2️⃣ CATEGORY KONTROLÜ
+     (ARTIK CATEGORY-ITEM ÜZERİNDEN)
+  ========================= */
+  const categoryResult = await getCategoryWithItems(slug);
 
-    const items = rawItems.map((item: any) => {
-      const attrs = item.attributes ?? item;
-      const imgData = attrs.image?.data?.attributes ?? attrs.image;
+  if (categoryResult && categoryResult.items.length > 0) {
+    const { category, items: rawItems } = categoryResult;
 
-      return {
-        id: item.id,
-        title: attrs.title,
-        slug: attrs.slug,
-        img: imgData?.url,
-      };
-    });
+    const items = rawItems.map((item: any) => ({
+      id: item.id,
+      title: item.title,
+      slug: item.slug,
+      img: item.image?.url,
+    }));
 
     return (
       <CategoryTemplate
-        title={data.title}
+        title={category?.title ?? ''}
         items={items}
         currentPage={currentPage}
       />
     );
   }
 
-  // 3️⃣ YOKSA
+  /* =========================
+     3️⃣ HİÇBİRİ DEĞİLSE
+  ========================= */
   notFound();
 }

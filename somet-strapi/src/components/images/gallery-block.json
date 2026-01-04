@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_images_gallery_blocks",
+  "info": {
+    "displayName": "Gallery Block",
+    "icon": "archive"
+  },
+  "options": {},
+  "attributes": {
+    "multipleMedia": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  },
+  "config": {}
+}

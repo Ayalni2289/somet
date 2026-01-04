@@ -1,0 +1,38 @@
+{
+  "kind": "collectionType",
+  "collectionName": "category_items",
+  "info": {
+    "singularName": "category-item",
+    "pluralName": "category-items",
+    "displayName": "CategoryItem"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "category": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::category.category",
+      "inversedBy": "categoryItems"
+    }
+  }
+}

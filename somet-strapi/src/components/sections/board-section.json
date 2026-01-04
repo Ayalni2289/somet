@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_sections_board_sections",
+  "info": {
+    "displayName": "board-section",
+    "icon": "code"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "period": {
+      "type": "string"
+    },
+    "boardMember": {
+      "type": "component",
+      "component": "shared.board-member",
+      "repeatable": true
+    }
+  },
+  "config": {}
+}

@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "kuruls",
+  "info": {
+    "singularName": "kurul",
+    "pluralName": "kuruls",
+    "displayName": "Kurul"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "Title"
+    },
+    "sections": {
+      "type": "dynamiczone",
+      "components": [
+        "sections.board-section"
+      ]
+    },
+    "content": {
+      "type": "richtext"
+    }
+  }
+}

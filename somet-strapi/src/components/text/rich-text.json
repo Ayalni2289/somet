@@ -1,0 +1,14 @@
+{
+  "collectionName": "components_text_rich_texts",
+  "info": {
+    "displayName": "Rich Text",
+    "icon": "attachment"
+  },
+  "options": {},
+  "attributes": {
+    "text": {
+      "type": "richtext"
+    }
+  },
+  "config": {}
+}

@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_test_archives",
+  "info": {
+    "displayName": "archive",
+    "icon": "archive"
+  },
+  "options": {},
+  "attributes": {
+    "contentt": {
+      "type": "blocks"
+    },
+    "media": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  },
+  "config": {}
+}

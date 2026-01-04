@@ -1,60 +1,68 @@
-import { notFound } from 'next/navigation'
-import { getArticleBySlug, getCategoryWithItems, strapiToArticle } from '@/lib/strapi'
-import ArticleTemplate from '@/components/ArticleTemplate'
-import CategoryTemplate from '@/components/CategoryTemplate'
+import { notFound } from 'next/navigation';
+import {
+  getArticleBySlug,
+  getCategoryWithItems,
+  strapiToArticle,
+} from '@/lib/strapi';
+import ArticleTemplate from '@/components/ArticleTemplate';
+import CategoryTemplate from '@/components/CategoryTemplate';
+
+// ⬇️ ÇOK ÖNEMLİ (Vercel build-time render yapmasın)
+export const dynamic = 'force-dynamic';
 
 export default async function Page({
   params,
   searchParams,
 }: {
-  params: Promise<{ slug: string }>
-  searchParams: Promise<{ page?: string }>
+  params: { slug: string };
+  searchParams: { page?: string };
 }) {
-  const { slug } = await params
-  const { page } = await searchParams
-  const currentPage = Math.max(1, parseInt(page || '1', 10))
+  const { slug } = params;
+  const currentPage = Math.max(
+    1,
+    parseInt(searchParams.page ?? '1', 10)
+  );
 
-  // 1. ADIM: MAKALE KONTROLÜ
-  // Ekran görüntüsündeki 'Article' koleksiyonuna bakar
-  const articleRaw = await getArticleBySlug(slug)
+  // 1️⃣ ARTICLE
+  const articleRaw = await getArticleBySlug(slug);
   if (articleRaw) {
-    const article = strapiToArticle(articleRaw)
+    const article = strapiToArticle(articleRaw);
+
     return (
-      <ArticleTemplate 
-        {...article} 
-        hero={article.coverImage} 
+      <ArticleTemplate
+        {...article}
+        hero={article.coverImage}
       />
-    )
+    );
   }
 
-  // 2. ADIM: KATEGORİ KONTROLÜ
-  // Ekran görüntüsündeki 'Category' koleksiyonuna bakar
-  const categoryRaw = await getCategoryWithItems(slug)
+  // 2️⃣ CATEGORY
+  const categoryRaw = await getCategoryWithItems(slug);
   if (categoryRaw) {
-    const data = categoryRaw.attributes || categoryRaw;
-    const rawItems = data.categoryItems?.data || data.categoryItems || [];
-    
-    // Veriyi template'in anlayacağı basit liste formatına çevir
+    const data = categoryRaw.attributes ?? categoryRaw;
+    const rawItems = data.categoryItems?.data ?? data.categoryItems ?? [];
+
     const items = rawItems.map((item: any) => {
-      const attrs = item.attributes || item;
-      const imgData = attrs.image?.data?.attributes || attrs.image;
+      const attrs = item.attributes ?? item;
+      const imgData = attrs.image?.data?.attributes ?? attrs.image;
+
       return {
         id: item.id,
         title: attrs.title,
         slug: attrs.slug,
-        img: imgData?.url // getStrapiImageUrl template içinde kullanılacak
-      }
-    })
+        img: imgData?.url,
+      };
+    });
 
     return (
-      <CategoryTemplate 
-        title={data.title} 
-        items={items} 
-        currentPage={currentPage} 
+      <CategoryTemplate
+        title={data.title}
+        items={items}
+        currentPage={currentPage}
       />
-    )
+    );
   }
 
-  // 3. ADIM: İKİSİ DE DEĞİLSE 404
-  notFound()
+  // 3️⃣ YOKSA
+  notFound();
 }

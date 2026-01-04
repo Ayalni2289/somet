@@ -1,7 +1,8 @@
 export default [
   'strapi::logger',
   'strapi::errors',
-  {name: 'strapi::security',
+  {
+    name: 'strapi::security',
     config: {
       contentSecurityPolicy: {
         useDefaults: true,
@@ -14,7 +15,15 @@ export default [
       },
     },
   },
-  'strapi::cors',
+  {
+    name: 'strapi::cors',
+    config: {
+      origin: [
+        'https://somet-shpt.vercel.app/', // Vercel domain
+        'http://localhost:3000', // lokal test için
+      ],
+    },
+  },
   'strapi::poweredBy',
   'strapi::query',
   'strapi::body',

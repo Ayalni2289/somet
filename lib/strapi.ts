@@ -169,7 +169,11 @@ export async function getArticles(): Promise<StrapiArticle[]> {
     const query = "?sort=createdAt:desc&populate[Cover]=*";
     const res = await fetch(
       `${STRAPI_URL}/api/articles${query}`,
-      { next: { revalidate: 60 } }
+      {
+        headers: {
+          Authorization: STRAPI_API_TOKEN ? `Bearer ${STRAPI_API_TOKEN}` : '',
+    },
+       next: { revalidate: 60 } }
     );
 
     if (!res.ok) return [];
@@ -208,10 +212,9 @@ export async function getArticleBySlug(slug: string): Promise<StrapiArticle | nu
 
 export function strapiToArticle(item: any) {
   if (!item) return null;
-  const data = item.attributes ? item.attributes : item;
+  const data = item;
 
-  const processedSections = data.sections?.map((section: any) => {
-    // Gallery Block Düzeltmesi
+    const processedSections = data.sections?.map((section: any) => {  
     if (section.__component === 'images.gallery-block') {
       const mediaSource = section.multipleMedia?.data || section.multipleMedia;
       return {
@@ -237,7 +240,6 @@ export function strapiToArticle(item: any) {
   });
 
   return {
-    ...data,
     id: item.id,
     coverImage: data.Cover?.url ? getStrapiImageUrl(data.Cover.url) : undefined,
     sections: processedSections ?? [],

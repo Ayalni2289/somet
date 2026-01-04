@@ -111,37 +111,37 @@ export interface StrapiResponse<T> {
 
 // Helper function to get image URL
 export function getStrapiImageUrl(url?: string | null) {
-  if (!url) return undefined
-  if (url.startsWith('http')) return url
-  return `${STRAPI_URL}${url}`
+  if (!url) return undefined;
+  // Eğer URL zaten tam bir adres ise (http ile başlıyorsa) direkt döndür
+  if (url.startsWith('http')) return url;
+  // Başına Strapi sunucu adresini ekle
+  return `${STRAPI_URL}${url}`;
 }
 
-function serializeSectionsToHtml(sections: any[] | undefined): string | undefined {
-  if (!Array.isArray(sections)) return undefined;
+export function serializeSectionsToHtml(sections: any[]): string {
+  if (!Array.isArray(sections)) return '';
 
   return sections
     .map((section) => {
       const type = section.__component;
 
-      // Rich Text Alanı
+      // Rich Text
       if (type === 'text.rich-text' || type === 'blocks.rich-text') {
         return section.text || section.richText || '';
       }
 
-      // Image Block (Tekli Resim) - Ekran görüntüsünde alan adı: image
+      // Single Image
       if (type === 'image.image-block') {
         const imgData = section.image?.data || section.image;
         const url = getStrapiImageUrl(imgData?.attributes?.url || imgData?.url);
-        
         if (!url) return '';
         const caption = section.caption ? `<figcaption>${section.caption}</figcaption>` : '';
         return `<figure><img src="${url}" alt="${section.caption || ''}" />${caption}</figure>`;
       }
 
-      // Gallery Block (Çoklu Resim) - Ekran görüntüsünde alan adı: multipleMedia
+      // Gallery Block
       if (type === 'images.gallery-block') {
         const mediaSource = section.multipleMedia?.data || section.multipleMedia;
-        
         if (!Array.isArray(mediaSource)) return '';
 
         const imgs = mediaSource
@@ -150,8 +150,10 @@ function serializeSectionsToHtml(sections: any[] | undefined): string | undefine
             return url ? `<img src="${url}" style="width:100%; border-radius:8px;" />` : '';
           })
           .join('');
-          
-        return imgs ? `<div class="gallery-grid" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:15px;">${imgs}</div>` : '';
+
+        return imgs
+          ? `<div class="gallery-grid" style="display:grid; grid-template-columns:repeat(2,1fr); gap:15px;">${imgs}</div>`
+          : '';
       }
 
       return '';
@@ -164,7 +166,7 @@ function serializeSectionsToHtml(sections: any[] | undefined): string | undefine
 // Fetch all articles from Strapi
 export async function getArticles(): Promise<any[]> {
   try {
-    const query = "?sort=createdAt:desc&populate=deep"
+    const query = "?sort=createdAt:desc&populate[0]=Cover&populate[1]=sections"
 
     const res = await fetch(
       `${STRAPI_URL}/api/articles${query}`,
@@ -189,59 +191,50 @@ export async function getArticles(): Promise<any[]> {
 }
 
 
-export async function getArticleBySlug(
-  slug: string
-): Promise<StrapiArticle | null> {
-  try {
-    const safeSlug = encodeURIComponent(slug)
-
-    const query =
-      `?filters[slug][$eq]=${safeSlug}` +
-      `&populate=deep`
-
-    const res = await fetch(
-      `${STRAPI_URL}/api/articles${query}`,
-      {
-        headers: {
-          Authorization: STRAPI_API_TOKEN
-            ? `Bearer ${STRAPI_API_TOKEN}`
-            : '',
-        },
-        cache: 'no-store',
-      }
-    )
-
-    if (!res.ok) {
-      console.error('Article fetch failed:', res.status)
-      return null
+export async function getArticleBySlug(slug: string) {
+  // populate[0]=Cover diyerek görselin gelmesini garanti ediyoruz
+  const query = `?filters[slug][$eq]=${slug}&populate[0]=Cover&populate[1]=sections`;
+  
+  const res = await fetch(
+    `${STRAPI_URL}/api/articles${query}`,
+    {
+      headers: {
+        Authorization: STRAPI_API_TOKEN ? `Bearer ${STRAPI_API_TOKEN}` : '',
+      },
+      cache: "no-store",
     }
+  );
 
-    const json = await res.json()
-    return json?.data?.[0] ?? null
-  } catch (error) {
-    console.error("Fetch error:", error)
-    return null
-  }
+  if (!res.ok) return null;
+
+  const json = await res.json();
+  // Strapi filtreleme sonucunda her zaman bir dizi döner, ilk elemanı alıyoruz
+  return json?.data?.[0] ?? null;
 }
-
 
 
 export function strapiToArticle(raw: any) {
-  const a = raw?.attributes ? raw.attributes : raw
+  // Strapi v5'te attributes katmanı genellikle yoktur, varsa da destekle
+  const data = raw.attributes ?? raw;
+  
+  // SİZİN JSON ÇIKTINIZDA: data.Cover.url
+  // Eski kodunuz data.Cover.data... arıyordu, o yüzden boş dönüyordu.
+  const imageUrl = data.Cover?.url; 
 
   return {
-    title: a?.title,
-    slug: a?.slug,
-    content: a?.content,
-    coverImage: a?.cover?.data
-      ? getStrapiImageUrl(a.cover.data.attributes.url)
-      : null,
-    sections: a?.sections ?? [],
-    publishedAt: a?.publishedAt,
-  }
+    id: raw.id,
+    title: data.title,
+    slug: data.slug,
+    sections: Array.isArray(data.sections) ? data.sections : [],
+    // URL'i burada oluşturup veriyoruz
+    coverImage: imageUrl ? getStrapiImageUrl(imageUrl) : undefined,
+    seoTitle: data.seoTitle ?? null,
+    seoDescription: data.seoDescription ?? null,
+    publishedAt: data.publishedAt ?? null,
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+  };
 }
-
-
 // ========== POSTS (Alternative content type) ==========
 
 // Fetch all published posts

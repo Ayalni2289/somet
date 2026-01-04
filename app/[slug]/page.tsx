@@ -23,47 +23,59 @@ export default async function Page({
   );
 
   /* =========================
-     1️⃣ ARTICLE KONTROLÜ
+      1️⃣ ARTICLE KONTROLÜ
   ========================= */
-  const articleRaw = await getArticleBySlug(slug);
-  if (articleRaw) {
-    const article = strapiToArticle(articleRaw);
+  const rawArticle = await getArticleBySlug(slug);
+
+  if (rawArticle) {
+    // strapiToArticle ham JSON'u alır ve coverImage: "http://..." şeklinde bir obje döner
+    const article = strapiToArticle(rawArticle);
 
     return (
       <ArticleTemplate
-        {...article}
-        hero={article.coverImage}
+        title={article.title}
+        sections={article.sections}
+        coverImage={article.coverImage} // ✅ Artık strapiToArticle'dan gelen hazır URL
+        seoTitle={article.seoTitle}
+        seoDescription={article.seoDescription}
       />
     );
   }
 
   /* =========================
-     2️⃣ CATEGORY KONTROLÜ
-     (ARTIK CATEGORY-ITEM ÜZERİNDEN)
+      2️⃣ CATEGORY KONTROLÜ
   ========================= */
   const categoryResult = await getCategoryWithItems(slug);
 
-  if (categoryResult && categoryResult.items.length > 0) {
-    const { category, items: rawItems } = categoryResult;
+  // Strapi v5 JSON yapısına göre düzeltildi
+  if (categoryResult) {
+    const category = categoryResult.attributes ?? categoryResult;
+    const rawItems = category.categoryItems?.data ?? [];
 
-    const items = rawItems.map((item: any) => ({
-      id: item.id,
-      title: item.title,
-      slug: item.slug,
-      img: item.image?.url,
-    }));
+    if (rawItems.length > 0) {
+      const items = rawItems.map((item: any) => {
+        const itemAttrs = item.attributes ?? item;
+        return {
+          id: item.id,
+          title: itemAttrs.title,
+          slug: itemAttrs.slug,
+          // Kategori öğeleri için görsel yolu kontrolü
+          img: itemAttrs.image?.url ?? itemAttrs.image?.data?.attributes?.url ?? null,
+        };
+      });
 
-    return (
-      <CategoryTemplate
-        title={category?.title ?? ''}
-        items={items}
-        currentPage={currentPage}
-      />
-    );
+      return (
+        <CategoryTemplate
+          title={category.title}
+          items={items}
+          currentPage={currentPage}
+        />
+      );
+    }
   }
 
-  /* =========================
-     3️⃣ HİÇBİRİ DEĞİLSE
-  ========================= */
+  // =========================
+  // 3️⃣ BULUNAMADI
+  // =========================
   notFound();
 }

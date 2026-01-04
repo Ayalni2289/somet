@@ -165,15 +165,18 @@ function serializeSectionsToHtml(sections: any[] | undefined): string | undefine
 // Fetch all articles from Strapi
 export async function getArticles(): Promise<StrapiArticle[]> {
   try {
-    // Liste sayfasında genellikle sadece başlık ve kapak fotoğrafı yeterlidir
-    const query = "?sort=createdAt:desc&populate[Cover]=*";
+    const query = "?sort=createdAt:desc&populate[cover]=*";
+
     const res = await fetch(
       `${STRAPI_URL}/api/articles${query}`,
       {
         headers: {
-          Authorization: STRAPI_API_TOKEN ? `Bearer ${STRAPI_API_TOKEN}` : '',
-    },
-       next: { revalidate: 60 } }
+          Authorization: STRAPI_API_TOKEN
+            ? `Bearer ${STRAPI_API_TOKEN}`
+            : '',
+        },
+        next: { revalidate: 60 },
+      }
     );
 
     if (!res.ok) return [];
@@ -186,21 +189,32 @@ export async function getArticles(): Promise<StrapiArticle[]> {
   }
 }
 
-export async function getArticleBySlug(slug: string): Promise<StrapiArticle | null> {
+
+export async function getArticleBySlug(
+  slug: string
+): Promise<StrapiArticle | null> {
   try {
-    // Sorguyu daha kapsamlı hale getirdik: 
-    // sections altındaki tüm bileşenleri ve bu bileşenlerin içindeki tüm medya alanlarını doldurur.
-    const query = `?filters[slug][$eq]=${slug}&populate[sections][populate]=*&populate[Cover][fields][0]=url`;
-    
+    const query =
+      `?filters[slug][$eq]=${slug}` +
+      `&populate[sections][populate]=*` +
+      `&populate[cover][fields][0]=url`;
+
     const res = await fetch(
       `${STRAPI_URL}/api/articles${query}`,
       {
         headers: {
-          Authorization: STRAPI_API_TOKEN ? `Bearer ${STRAPI_API_TOKEN}` : '',
+          Authorization: STRAPI_API_TOKEN
+            ? `Bearer ${STRAPI_API_TOKEN}`
+            : '',
         },
         cache: 'no-store',
       }
     );
+
+    if (!res.ok) {
+      console.error('Article fetch failed:', res.status);
+      return null;
+    }
 
     const json = await res.json();
     return json?.data?.[0] ?? null;
@@ -210,46 +224,20 @@ export async function getArticleBySlug(slug: string): Promise<StrapiArticle | nu
   }
 }
 
-export function strapiToArticle(item: any) {
-  if (!item) return null;
-  
-  // Strapi 5'te veriler doğrudan item içindedir
-  const data = item;
 
-  const processedSections = data.sections?.map((section: any) => {
-    // Gallery Block Düzeltmesi
-    if (section.__component === 'images.gallery-block') {
-      const mediaSource = section.multipleMedia?.data || section.multipleMedia;
-      return {
-        ...section,
-        images: Array.isArray(mediaSource) 
-          ? mediaSource.map((m: any) => ({
-              url: getStrapiImageUrl(m.attributes?.url || m.url)
-            }))
-          : []
-      };
-    }
-    
-    // Image Block Düzeltmesi
-    if (section.__component === 'image.image-block') {
-      const imgData = section.image?.data || section.image;
-      return {
-        ...section,
-        imageUrl: getStrapiImageUrl(imgData?.attributes?.url || imgData?.url)
-      };
-    }
+export function strapiToArticle(raw: any) {
+  const a = raw.attributes ?? raw;
 
-    return section;
-  });
-
-  // BURASI KRİTİK: Tüm orijinal alanları (...data) yeni objeye aktarıyoruz
   return {
-    ...data, // Title, Slug, content vb. tüm alanlar buradan gelir
-    id: item.id,
-    coverImage: data.Cover?.url ? getStrapiImageUrl(data.Cover.url) : undefined,
-    sections: processedSections ?? [],
+    title: a.title,
+    slug: a.slug,
+    content: a.content,
+    coverImage: a.cover?.data?.attributes?.url ?? null,
+    sections: a.sections ?? [],
+    publishedAt: a.publishedAt,
   };
 }
+
 // ========== POSTS (Alternative content type) ==========
 
 // Fetch all published posts

@@ -186,7 +186,7 @@ export default function EgitimMerkeziPage() {
 															'/images/Slayt143.jpg',
 															'/images/semazen.jpg',
 															'/images/IMG_00061.jpg',
-															'/images/OZ1 (1).jpg',
+															'/images/OZ1.jpg',
 															'/images/Slayt210.jpg',
 															'/images/DSCF1673.jpg',
 															'/images/DSCF1679.jpg',

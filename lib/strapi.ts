@@ -212,9 +212,12 @@ export async function getArticleBySlug(slug: string): Promise<StrapiArticle | nu
 
 export function strapiToArticle(item: any) {
   if (!item) return null;
+  
+  // Strapi 5'te veriler doğrudan item içindedir
   const data = item;
 
-    const processedSections = data.sections?.map((section: any) => {  
+  const processedSections = data.sections?.map((section: any) => {
+    // Gallery Block Düzeltmesi
     if (section.__component === 'images.gallery-block') {
       const mediaSource = section.multipleMedia?.data || section.multipleMedia;
       return {
@@ -239,7 +242,9 @@ export function strapiToArticle(item: any) {
     return section;
   });
 
+  // BURASI KRİTİK: Tüm orijinal alanları (...data) yeni objeye aktarıyoruz
   return {
+    ...data, // Title, Slug, content vb. tüm alanlar buradan gelir
     id: item.id,
     coverImage: data.Cover?.url ? getStrapiImageUrl(data.Cover.url) : undefined,
     sections: processedSections ?? [],

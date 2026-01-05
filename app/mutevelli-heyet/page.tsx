@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import Footer from '../../components/Footer'
-import { getKurulBySlug, strapiToKurul } from '../../lib/strapi'
+// getStrapiImageUrl fonksiyonunu buraya ekledim 👇
+import { getKurulBySlug, strapiToKurul, getStrapiImageUrl } from '../../lib/strapi'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 
 export default async function MutevelliHeyet() {
   const strapiKurul = await getKurulBySlug('mutevelli-heyet')
-  const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337'
 
   if (!strapiKurul) {
     return (
@@ -28,7 +28,6 @@ export default async function MutevelliHeyet() {
           style={{ flexDirection: 'column', alignItems: 'center' }}
         >
           <h1 style={{ color: '#fff', fontSize: 44 }}>{kurul.title}</h1>
-
           <nav aria-label="breadcrumb" style={{ marginTop: 10 }}>
             <Link href="/" style={{ color: '#2DD4BF', textDecoration: 'none' }}>
               Ana Sayfa
@@ -73,89 +72,95 @@ export default async function MutevelliHeyet() {
                     <div
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', // Mobilde daha iyi görünmesi için auto-fit yaptım
                         gap: 28,
                       }}
                     >
-                      {section.boardMember.map((member: any) => (
-                        <div
-                          key={member.id}
-                          style={{
-                            background: '#fafafa',
-                            borderRadius: 12,
-                            padding: 24,
-                            textAlign: 'center',
-                          }}
-                        >
+                      {section.boardMember.map((member: any) => {
+                        // Resim URL'ini güvenli şekilde alıyoruz 👇
+                        const imgUrl = getStrapiImageUrl(member.photo?.url);
+                        
+                        return (
                           <div
+                            key={member.id}
                             style={{
-                              maxWidth: 180,
-                              aspectRatio: '3 / 4',
-                              margin: '0 auto 16px',
+                              background: '#fafafa',
                               borderRadius: 12,
-                              overflow: 'hidden',
-                              background: '#eee',
+                              padding: 24,
+                              textAlign: 'center',
                             }}
                           >
-                            {member.photo?.url ? (
-                            <img
-                              src={`${STRAPI_URL}${member.photo.url}`}
-                              alt={member.name}
-                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            />
-                            ) : (
-                              <div
-                                style={{
-                                  display: 'flex',
-                                  height: '100%',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                }}
-                              >
-                                <svg
-                                  width="60"
-                                  height="60"
-                                  viewBox="0 0 24 24"
-                                  fill="#ccc"
+                            <div
+                              style={{
+                                maxWidth: 180,
+                                aspectRatio: '3 / 4',
+                                margin: '0 auto 16px',
+                                borderRadius: 12,
+                                overflow: 'hidden',
+                                background: '#eee',
+                              }}
+                            >
+                              {imgUrl ? (
+                                <img
+                                  src={imgUrl}
+                                  alt={member.fullName || 'Üye'} // Alt metni düzelttim
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    height: '100%',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}
                                 >
-                                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                                </svg>
-                              </div>
-                            )}
-                          </div>
+                                  <svg
+                                    width="60"
+                                    height="60"
+                                    viewBox="0 0 24 24"
+                                    fill="#ccc"
+                                  >
+                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
 
-                          <div style={{ fontWeight: 700, fontSize: 15 }}>
-                            {member.name}
+                            {/* DİKKAT: Strapi'deki alan adın 'fullName' idi, 'name' değil 👇 */}
+                            <div style={{ fontWeight: 700, fontSize: 15 }}>
+                              {member.fullName}
+                            </div>
+                            <div style={{ fontSize: 14, color: '#666' }}>
+                              {member.role}
+                            </div>
                           </div>
-                          <div style={{ fontSize: 14, color: '#666' }}>
-                            {member.role}
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
               ))}
 
-{kurul.content && (
-  <div
-    style={{
-      marginTop: 40,
-      borderTop: '1px solid #eee',
-      paddingTop: 40,
-      width: '100%',
-      overflow: 'hidden', // yatay kaydırmayı engeller
-    }}
-    className="rich-text-container markdown-content prose max-w-none"
-  >
-    <ReactMarkdown
-      rehypePlugins={[rehypeRaw]}
-      disallowedElements={['script', 'iframe']}
-    >
-      {kurul.content}
-    </ReactMarkdown>
-  </div>
-)}
+              {kurul.content && (
+                <div
+                  style={{
+                    marginTop: 40,
+                    borderTop: '1px solid #eee',
+                    paddingTop: 40,
+                    width: '100%',
+                    overflow: 'hidden',
+                  }}
+                  className="rich-text-container markdown-content prose max-w-none"
+                >
+                  <ReactMarkdown
+                    rehypePlugins={[rehypeRaw]}
+                    disallowedElements={['script', 'iframe']}
+                  >
+                    {kurul.content}
+                  </ReactMarkdown>
+                </div>
+              )}
 
             </div>
           </div>

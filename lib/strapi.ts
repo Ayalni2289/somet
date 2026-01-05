@@ -584,26 +584,53 @@ export async function getArticlesByType(type: string) {
 
 
 export async function getKurulBySlug(slug: string) {
-  const STRAPI_URL =
-    process.env.NEXT_PUBLIC_STRAPI_URL || 'http://127.0.0.1:1337';
+  try {
+    const queryObj = {
+      filters: { slug: { $eq: slug } },
+      populate: {
+        sections: {
+          on: {
+            // DİKKAT: Ekran görüntüsünde component ismin 'board-section'.
+            // Strapi'de bu genellikle 'kategoriIsmi.componentIsmi' şeklindedir.
+            // Eğer kategori ismin 'sections' ise aşağıdaki 'sections.board-section' doğrudur.
+            // Eğer kategori ismin 'shared' ise 'shared.board-section' yapmalısın.
+            'sections.board-section': {
+              populate: {
+                // boardMember içindeki photo'ya ulaşmak için burayı açıyoruz
+                boardMember: {
+                  populate: {
+                    photo: {
+                      fields: ['url', 'alternativeText']
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    };
 
-  const query = new URLSearchParams({
-    'filters[slug][$eq]': slug,
-    'populate[sections][on][sections.board-section][populate][boardMember][populate]': 'photo',
-  });
+    const queryStr = qs.stringify(queryObj, { encodeValuesOnly: true });
 
-  const res = await fetch(`${STRAPI_URL}/api/kuruls?${query.toString()}`, {
-    cache: 'no-store',
-  });
+    console.log("Kurul Request URL:", `${STRAPI_URL}/api/kuruls?${queryStr}`);
 
-  if (!res.ok) {
-    const err = await res.text();
-    console.error('STRAPI ERROR:', err);
+    const res = await fetch(`${STRAPI_URL}/api/kuruls?${queryStr}`, {
+      headers: STRAPI_API_TOKEN ? { Authorization: `Bearer ${STRAPI_API_TOKEN}` } : {},
+      next: { revalidate: 60 },
+    });
+
+    if (!res.ok) {
+      console.error('STRAPI ERROR (Kurul):', res.status, res.statusText);
+      return null;
+    }
+
+    const json = await res.json();
+    return json?.data?.[0] ?? null;
+  } catch (error) {
+    console.error("Error fetching kurul:", error);
     return null;
   }
-
-  const json = await res.json();
-  return json?.data?.[0] || null;
 }
 
 

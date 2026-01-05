@@ -608,7 +608,7 @@ body {
 .projects-root { position: relative; display: flex; align-items: flex-start; gap: 18px }
 .projects-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; align-items: start; flex: 1 }
 .project-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.04); transition: transform 200ms ease, box-shadow 200ms ease; cursor: pointer }
-.project-card:focus, .project-card:hover { transform: translateY(-6px); box-shadow: 0 14px 36px rgba(0,0,0,0.08) }
+.project-card:focus, .project-card:hover { transform: translateY(-6px); }
 .project-media { padding: 22px; background: #f7f7f7; display:flex; align-items:center; justify-content:center; height: 240px }
 .project-media img { max-width: 100%; max-height: 100%; display: block }
 .project-caption { text-align:center; padding: 18px 10px; font-weight:700; background-color: #f7f7f7; }

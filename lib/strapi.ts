@@ -193,7 +193,8 @@ export async function getArticles(): Promise<any[]> {
 
 export async function getArticleBySlug(slug: string) {
   // populate[0]=Cover diyerek görselin gelmesini garanti ediyoruz
-  const query = `?filters[slug][$eq]=${slug}&populate[0]=Cover&populate[1]=sections`;
+  const query = `?filters[slug][$eq]=${slug}&populate[cover]=*&populate[sections][populate][0]=rich-text&populate[sections][populate][1]=image-block.image&populate[sections][populate][2]=gallery-block.multipleMedia`;
+
   
   const res = await fetch(
     `${STRAPI_URL}/api/articles${query}`,

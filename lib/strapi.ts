@@ -1,3 +1,4 @@
+import qs from 'qs';
 // Strapi API Client
 export const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337'
 export const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN || ''
@@ -189,63 +190,28 @@ export async function getArticles(): Promise<any[]> {
   }
 }
 
+
 export async function getArticleBySlug(slug: string) {
-  // 1. Manuel Query String (En güvenli yöntem)
-  // Burada hem Cover'ı, hem sections içindeki Image Block'u, hem de Rich Text'i istiyoruz.
+  // populate[0]=Cover diyerek görselin gelmesini garanti ediyoruz
+  const query = `?filters[slug][$eq]=${slug}&populate[0]=Cover&populate[1]=sections`;
   
-  // DİKKAT: 'image.image-block' isminin doğruluğundan emin değilsek
-  // aşağıda açıklayacağım yöntemle kontrol etmelisin. 
-  // Şimdilik standart isimlendirmeyi kullanıyoruz.
-  
-  const queryParams = [
-    `filters[slug][$eq]=${slug}`,
-    `populate[Cover][fields][0]=url&populate[Cover][fields][1]=alternativeText`,
-    // Dynamic Zone: Image Block içindeki resmi getir
-    `populate[sections][on][image.image-block][populate]=image`,
-    // Dynamic Zone: Rich Text içeriğini getir (Eğer component adı farklıysa burası çalışmaz, o yüzden aşağıya yedeğini ekledim)
-    `populate[sections][on][text.rich-text][populate]=*`,
-    `populate[sections][on][shared.rich-text][populate]=*` 
-  ];
-
-  const query = `?${queryParams.join('&')}`;
-
-  console.log("DEBUG - Oluşturulan URL:", `${STRAPI_URL}/api/articles${query}`);
-
-  try {
-    const res = await fetch(
-      `${STRAPI_URL}/api/articles${query}`,
-      {
-        headers: {
-          Authorization: STRAPI_API_TOKEN ? `Bearer ${STRAPI_API_TOKEN}` : '',
-        },
-        cache: "no-store",
-      }
-    );
-
-    if (!res.ok) {
-      console.error("DEBUG - API Hatası:", res.status, res.statusText);
-      return null;
+  const res = await fetch(
+    `${STRAPI_URL}/api/articles${query}`,
+    {
+      headers: {
+        Authorization: STRAPI_API_TOKEN ? `Bearer ${STRAPI_API_TOKEN}` : '',
+      },
+      cache: "no-store",
     }
+  );
 
-    const json = await res.json();
-    
-    // DEBUG: Gelen verinin yapısını görelim (Sunucu konsolunda çıkar)
-    if (json?.data?.[0]) {
-       console.log("DEBUG - Gelen Section Tipleri:", json.data[0].attributes.sections?.map((s:any) => s.__component));
-       // Resim gelmiş mi kontrol et
-       const imageBlock = json.data[0].attributes.sections?.find((s:any) => s.__component === 'image.image-block');
-       console.log("DEBUG - Image Block Detayı:", JSON.stringify(imageBlock, null, 2));
-    } else {
-       console.log("DEBUG - Veri bulunamadı veya boş döndü.");
-    }
+  if (!res.ok) return null;
 
-    return json?.data?.[0] ?? null;
-
-  } catch (error) {
-    console.error("DEBUG - Fetch Hatası:", error);
-    return null;
-  }
+  const json = await res.json();
+  // Strapi filtreleme sonucunda her zaman bir dizi döner, ilk elemanı alıyoruz
+  return json?.data?.[0] ?? null;
 }
+
 
 export function strapiToArticle(raw: any) {
   // Strapi v5'te attributes katmanı genellikle yoktur, varsa da destekle

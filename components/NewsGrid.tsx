@@ -14,41 +14,61 @@ type NewsItem = {
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL!
 
 function mapArticlesToNewsItem(articles: any[], badge: string): NewsItem {
-  // Eğer makale listesi boşsa, güvenli bir varsayılan döndür
+  // Veri yoksa boş dön
   if (!articles || articles.length === 0) {
     return { 
-      title: 'İçerik Bulunamadı', 
+      title: '', 
       badge, 
-      img: '/images/footer.jpg', // Varsayılan bir resim yolu
+      img: '/images/footer.jpg',
       list: [] 
     };
   }
 
-  // İlk elemanı (Ana kart görseli olacak) al
+  // İlk elemanı al
   const firstItem = articles[0];
-  const firstAttr = firstItem.attributes || firstItem; // attributes kontrolü
+  const firstAttr = firstItem.attributes || firstItem;
 
-  // Resim URL'sini güvenli bir şekilde bulma
-  const firstCoverData = firstAttr.Cover?.data;
-  const firstImgUrl = firstCoverData?.attributes?.url || firstCoverData?.url;
+  // --- DEBUG İÇİN EKLENDİ ---
+  // Tarayıcı konsolunda (F12) bu çıktıyı kontrol et. Resim verisi nerede duruyor görelim.
+  if (badge === 'HABERLER') {
+      console.log('HABERLER İlk Kayıt Detayı:', JSON.stringify(firstAttr, null, 2));
+  }
+  // -------------------------
+
+  // Resim verisini bulmaya çalış (Hem 'Cover' hem 'cover' hem de 'image' deniyoruz)
+  const imageField = firstAttr.Cover || firstAttr.cover || firstAttr.Image || firstAttr.image;
+  const firstCoverData = imageField?.data;
+  
+  // URL'yi al
+  const rawUrl = firstCoverData?.attributes?.url || firstCoverData?.url;
+
+  // Tam URL'yi oluştur
+  const finalImgUrl = rawUrl 
+    ? (rawUrl.startsWith('http') ? rawUrl : `${STRAPI_URL}${rawUrl}`)
+    : '/images/footer.jpg';
 
   return {
-    title: firstAttr.title || 'Başlıksız İçerik',
+    title: firstAttr.title,
     badge,
-    // Eğer resim URL varsa başına STRAPI_URL ekle, yoksa varsayılanı kullan
-    img: firstImgUrl ? `${STRAPI_URL}${firstImgUrl}` : '/images/footer.jpg',
+    img: finalImgUrl,
 
-    // Alt liste elemanlarını dönüştür
-    list: articles.map((item: any) => {
-      const attr = item.attributes || item;
-      const coverData = attr.Cover?.data;
-      const imgUrl = coverData?.attributes?.url || coverData?.url;
+    list: articles.map((a: any) => {
+      const attr = a.attributes || a;
+      
+      // Liste elemanları için de aynı esnek kontrol
+      const imgField = attr.Cover || attr.cover || attr.Image || attr.image;
+      const imgData = imgField?.data;
+      const url = imgData?.attributes?.url || imgData?.url;
+
+      const itemImgUrl = url 
+        ? (url.startsWith('http') ? url : `${STRAPI_URL}${url}`)
+        : '/images/footer.jpg';
 
       return {
-        label: attr.title || 'Başlıksız',
+        label: attr.title,
         href: attr.slug ? `/${attr.slug}` : '#',
-        img: imgUrl ? `${STRAPI_URL}${imgUrl}` : '/images/footer.jpg',
-      }
+        img: itemImgUrl,
+      };
     }),
   }
 }

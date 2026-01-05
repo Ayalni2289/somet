@@ -190,11 +190,9 @@ export async function getArticles(): Promise<any[]> {
   }
 }
 
-
 export async function getArticleBySlug(slug: string) {
-  // populate[0]=Cover diyerek görselin gelmesini garanti ediyoruz
-  const query = `?filters[slug][$eq]=${slug}&populate[0]=Cover&populate[1]=sections`;
-  
+  const query = `?filters[slug][$eq]=${slug}&populate[Cover]&populate[sections.Image]=media,caption&populate[sections.Text]=text&populate[sections.Quote]=quote,author`;
+
   const res = await fetch(
     `${STRAPI_URL}/api/articles${query}`,
     {
@@ -208,9 +206,9 @@ export async function getArticleBySlug(slug: string) {
   if (!res.ok) return null;
 
   const json = await res.json();
-  // Strapi filtreleme sonucunda her zaman bir dizi döner, ilk elemanı alıyoruz
   return json?.data?.[0] ?? null;
 }
+
 
 
 export function strapiToArticle(raw: any) {

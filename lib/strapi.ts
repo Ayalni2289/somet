@@ -1,5 +1,7 @@
 
 // Strapi API Client
+import qs from 'qs';
+
 export const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337'
 export const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN || ''
 
@@ -163,77 +165,154 @@ export function serializeSectionsToHtml(sections: any[]): string {
 }
 
 
-// Fetch all articles from Strapi
+// getArticles fonksiyonunun tamamı
 export async function getArticles(): Promise<any[]> {
   try {
-    const query = "?sort=createdAt:desc&populate[0]=Cover&populate[1]=sections"
+    // Karmaşık ve derin populate işlemleri için qs nesnesi oluşturuyoruz
+    const queryObj = {
+      sort: ['createdAt:desc'], // En yeni eklenene göre sırala
+      populate: {
+        Cover: {
+          fields: ['url', 'alternativeText'] // Kapak fotoğrafının sadece gerekli alanlarını al
+        },
+        sections: {
+          on: {
+            // Strapi Dynamic Zone bileşen isimleri (Senin serialize fonksiyonuna göre ayarlandı)
+            
+            // 1. Rich Text (veya Blocks)
+            'text.rich-text': {
+              populate: '*' 
+            },
+            'blocks.rich-text': {
+              populate: '*'
+            },
+
+            // 2. Tekil Resim Bloğu
+            'image.image-block': {
+              populate: {
+                image: {
+                  fields: ['url', 'alternativeText', 'caption', 'width', 'height']
+                }
+              }
+            },
+
+            // 3. Galeri Bloğu
+            'images.gallery-block': {
+              populate: {
+                multipleMedia: {
+                  fields: ['url', 'alternativeText', 'caption']
+                }
+              }
+            }
+          }
+        }
+      }
+    };
+
+    // Nesneyi Strapi'nin anlayacağı string formatına çeviriyoruz
+    const queryStr = qs.stringify(queryObj, { encodeValuesOnly: true });
 
     const res = await fetch(
-      `${STRAPI_URL}/api/articles${query}`,
+      `${STRAPI_URL}/api/articles?${queryStr}`,
       {
         headers: {
           Authorization: STRAPI_API_TOKEN
             ? `Bearer ${STRAPI_API_TOKEN}`
             : '',
         },
-        next: { revalidate: 60 },
+        next: { revalidate: 60 }, // ISR: 60 saniyede bir güncelle
       }
-    )
+    );
 
-    if (!res.ok) return []
+    if (!res.ok) {
+      // Hata durumunda loglayıp boş dizi dönüyoruz
+      console.error(`Strapi API Error: ${res.status} - ${res.statusText}`);
+      return [];
+    }
 
-    const json = await res.json()
-    return json?.data ?? []
+    const json = await res.json();
+    return json?.data ?? [];
+    
   } catch (error) {
-    console.error("Fetch error:", error)
-    return []
+    console.error("Fetch error in getArticles:", error);
+    return [];
   }
 }
 
 
 export async function getArticleBySlug(slug: string) {
-  // populate[0]=Cover diyerek görselin gelmesini garanti ediyoruz
-  const query = `?filters[slug][$eq]=${slug}&populate[cover]=*&populate[sections][populate][0]=rich-text&populate[sections][populate][1]=image-block.image&populate[sections][populate][2]=gallery-block.multipleMedia`;
+  try {
+    const queryObj = {
+      filters: { slug: { $eq: slug } },
+      populate: {
+        // 1. DÜZELTME: 'cover' değil 'Cover' (Senin şemandaki orijinal isim)
+        Cover: { 
+          fields: ['url', 'alternativeText'] 
+        },
+        
+        // 2. DÜZELTME: Dynamic Zone için en garantili yöntem
+        sections: {
+          populate: '*'
+        }
+      }
+    };
 
-  
-  const res = await fetch(
-    `${STRAPI_URL}/api/articles${query}`,
-    {
-      headers: {
-        Authorization: STRAPI_API_TOKEN ? `Bearer ${STRAPI_API_TOKEN}` : '',
-      },
-      cache: "no-store",
+    const queryStr = qs.stringify(queryObj, { encodeValuesOnly: true });
+    
+    // Debug için URL'i yine basalım, çalışınca kaldırırsın
+    console.log("REQUEST URL:", `${STRAPI_URL}/api/articles?${queryStr}`);
+
+    const res = await fetch(`${STRAPI_URL}/api/articles?${queryStr}`, {
+      headers: STRAPI_API_TOKEN ? { Authorization: `Bearer ${STRAPI_API_TOKEN}` } : {},
+      next: { revalidate: 60 }
+    });
+
+    if (!res.ok) {
+      // Eğer hala hata alırsan bu log bize sebebini söyler
+      const err = await res.text();
+      console.error("Strapi Error Details:", err);
+      return null;
     }
-  );
 
-  if (!res.ok) return null;
-
-  const json = await res.json();
-  // Strapi filtreleme sonucunda her zaman bir dizi döner, ilk elemanı alıyoruz
-  return json?.data?.[0] ?? null;
+    const json = await res.json();
+    return json?.data?.[0] ?? null;
+  } catch (error) {
+    console.error("Error fetching article:", error);
+    return null;
+  }
 }
 
-
 export function strapiToArticle(raw: any) {
-  // Strapi v5'te attributes katmanı genellikle yoktur, varsa da destekle
-  const data = raw.attributes ?? raw;
+  if (!raw) return null;
+
+  // HACK: Strapi v4'te veriler 'attributes' içindedir, v5'te veya flatten edilmişse direkt köktedir.
+  // Bu satır iki versiyonu da destekler.
+  const data = raw.attributes ? { ...raw.attributes, id: raw.id } : raw;
+
+  // Cover resmi kontrolü (attributes içinde mi değil mi?)
+  let coverUrl = undefined;
   
-  // SİZİN JSON ÇIKTINIZDA: data.Cover.url
-  // Eski kodunuz data.Cover.data... arıyordu, o yüzden boş dönüyordu.
-  const imageUrl = data.Cover?.url; 
+  // Cover verisi var mı kontrol et
+  const coverData = data.Cover?.data || data.Cover;
+  
+  if (coverData) {
+    // Cover verisi attributes içinde mi?
+    const coverAttrs = coverData.attributes || coverData;
+    coverUrl = getStrapiImageUrl(coverAttrs.url);
+  }
 
   return {
-    id: raw.id,
-    title: data.title,
-    slug: data.slug,
+    id: raw.id || data.id,
+    title: data.title || '',
+    slug: data.slug || '',
+    // sections bir array değilse boş array ata
     sections: Array.isArray(data.sections) ? data.sections : [],
-    // URL'i burada oluşturup veriyoruz
-    coverImage: imageUrl ? getStrapiImageUrl(imageUrl) : undefined,
+    coverImage: coverUrl,
+    publishedAt: data.publishedAt ?? null,
     seoTitle: data.seoTitle ?? null,
     seoDescription: data.seoDescription ?? null,
-    publishedAt: data.publishedAt ?? null,
     createdAt: data.createdAt,
-    updatedAt: data.updatedAt,
+    updatedAt: data.updatedAt
   };
 }
 // ========== POSTS (Alternative content type) ==========

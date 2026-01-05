@@ -3,6 +3,7 @@ import {
   getArticleBySlug,
   getCategoryWithItems,
   strapiToArticle,
+  getStrapiImageUrl,
 } from '@/lib/strapi';
 import ArticleTemplate from '@/components/ArticleTemplate';
 import CategoryTemplate from '@/components/CategoryTemplate';
@@ -42,25 +43,26 @@ export default async function Page({
     );
   }
 
-  /* =========================
-      2️⃣ CATEGORY KONTROLÜ
-  ========================= */
   const categoryResult = await getCategoryWithItems(slug);
 
-  // Strapi v5 JSON yapısına göre düzeltildi
   if (categoryResult) {
     const category = categoryResult.attributes ?? categoryResult;
-    const rawItems = category.categoryItems?.data ?? [];
+    // Strapi v5'te bazen data iç içe olabiliyor, güvenli erişim:
+    const rawItems = category.categoryItems?.data ?? category.categoryItems ?? [];
 
-    if (rawItems.length > 0) {
+    if (Array.isArray(rawItems) && rawItems.length > 0) {
       const items = rawItems.map((item: any) => {
         const itemAttrs = item.attributes ?? item;
+        
+        // Resim verisine güvenli erişim
+        const imgData = itemAttrs.image?.data?.attributes ?? itemAttrs.image?.attributes ?? itemAttrs.image ?? null;
+        
         return {
           id: item.id,
           title: itemAttrs.title,
           slug: itemAttrs.slug,
-          // Kategori öğeleri için görsel yolu kontrolü
-          img: itemAttrs.image?.url ?? itemAttrs.image?.data?.attributes?.url ?? null,
+          // ✅ getStrapiImageUrl kullanarak tam URL alıyoruz
+          img: getStrapiImageUrl(imgData?.url), 
         };
       });
 

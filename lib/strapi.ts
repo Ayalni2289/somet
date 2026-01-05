@@ -1,4 +1,4 @@
-
+import qs from 'qs';
 // Strapi API Client
 export const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337'
 export const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN || ''
@@ -190,13 +190,50 @@ export async function getArticles(): Promise<any[]> {
   }
 }
 
-
 export async function getArticleBySlug(slug: string) {
-  // populate[0]=Cover diyerek görselin gelmesini garanti ediyoruz
-  const query = `?filters[slug][$eq]=${slug}&populate[0]=Cover&populate[1]=sections`;
-  
+  // QS ile derinlemesine populate sorgusu oluşturuyoruz
+  const query = qs.stringify({
+    filters: {
+      slug: {
+        $eq: slug,
+      },
+    },
+    populate: {
+      // 1. Kapak Görseli
+      Cover: {
+        fields: ['url', 'alternativeText']
+      },
+      // 2. Dynamic Zone (sections)
+      sections: {
+        on: {
+          // GÖRÜNMEYEN RESİM BURADAN GELECEK:
+          'image.image-block': { 
+            populate: {
+              image: {
+                fields: ['url', 'alternativeText', 'width', 'height']
+              }
+            }
+          },
+          // Galeri bloğu kullanıyorsan onun resimleri için:
+          'images.gallery-block': {
+            populate: {
+              multipleMedia: {
+                fields: ['url', 'alternativeText']
+              }
+            }
+          },
+          // Rich Text alanları (genelde populate gerektirmez ama garanti olsun)
+          'text.rich-text': { populate: '*' },
+          'blocks.rich-text': { populate: '*' }
+        }
+      }
+    }
+  }, {
+    encodeValuesOnly: true, // URL'in temiz görünmesi için
+  });
+
   const res = await fetch(
-    `${STRAPI_URL}/api/articles${query}`,
+    `${STRAPI_URL}/api/articles?${query}`,
     {
       headers: {
         Authorization: STRAPI_API_TOKEN ? `Bearer ${STRAPI_API_TOKEN}` : '',
@@ -208,10 +245,8 @@ export async function getArticleBySlug(slug: string) {
   if (!res.ok) return null;
 
   const json = await res.json();
-  // Strapi filtreleme sonucunda her zaman bir dizi döner, ilk elemanı alıyoruz
   return json?.data?.[0] ?? null;
 }
-
 
 export function strapiToArticle(raw: any) {
   // Strapi v5'te attributes katmanı genellikle yoktur, varsa da destekle

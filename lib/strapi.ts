@@ -573,14 +573,27 @@ export async function getCategoryWithItems(slug: string) {
 
 
 export async function getArticlesByType(type: string) {
-  const res = await fetch(
-    `${STRAPI_URL}/api/articles?filters[type][$eq]=${type}&sort=publishedAt:desc&pagination[limit]=5&populate=Cover`,
-    { cache: 'no-store' }
-  )
+  try {
+    const res = await fetch(
+      `${STRAPI_URL}/api/articles?filters[type][$eq]=${type}&sort=publishedAt:desc&pagination[limit]=5&populate=Cover`,
+      { cache: 'no-store' }
+    )
 
-  const json = await res.json()
-  return json.data
+    if (!res.ok) {
+      console.error(`API Hatası: ${res.statusText}`);
+      return [];
+    }
+
+    const json = await res.json()
+    // Strapi v4 'data' array'ini döner
+    return json.data || []; 
+  } catch (error) {
+    console.error("Fetch hatası:", error);
+    return [];
+  }
 }
+
+
 
 
 export async function getKurulBySlug(slug: string) {

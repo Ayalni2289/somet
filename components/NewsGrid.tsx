@@ -14,22 +14,40 @@ type NewsItem = {
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL!
 
 function mapArticlesToNewsItem(articles: any[], badge: string): NewsItem {
-  const first = articles[0]
+  // Eğer makale gelmediyse boş bir yapı dön
+  if (!articles || articles.length === 0) {
+    return { title: '', badge, list: [] };
+  }
+
+  const first = articles[0];
+  // Strapi v4'te veriler genellikle 'attributes' içindedir.
+  const firstAttr = first.attributes || first; 
+  
+  // Resim URL'sini güvenli bir şekilde alalım
+  // Yapı: attributes -> Cover -> data -> attributes -> url
+  const firstCoverData = firstAttr.Cover?.data;
+  const firstImgUrl = firstCoverData?.attributes?.url || firstCoverData?.url;
 
   return {
-    title: first?.title,
+    title: firstAttr.title,
     badge,
-    img: first?.Cover?.url
-      ? STRAPI_URL + first.Cover.url
+    img: firstImgUrl
+      ? STRAPI_URL + firstImgUrl
       : '/images/footer.jpg',
 
-    list: articles.map((a: any) => ({
-      label: a.title,
-      href: `/${a.slug}`,
-      img: a?.Cover?.url
-        ? STRAPI_URL + a.Cover.url
-        : '/images/footer.jpg',
-    })),
+    list: articles.map((a: any) => {
+      const attr = a.attributes || a;
+      const coverData = attr.Cover?.data;
+      const imgUrl = coverData?.attributes?.url || coverData?.url;
+
+      return {
+        label: attr.title,
+        href: attr.slug ? `/${attr.slug}` : '#', // Slug'ın da attributes içinde olduğunu varsayıyoruz
+        img: imgUrl
+          ? STRAPI_URL + imgUrl
+          : '/images/footer.jpg',
+      }
+    }),
   }
 }
 

@@ -14,38 +14,40 @@ type NewsItem = {
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL!
 
 function mapArticlesToNewsItem(articles: any[], badge: string): NewsItem {
-  // Eğer makale gelmediyse boş bir yapı dön
+  // Eğer makale listesi boşsa, güvenli bir varsayılan döndür
   if (!articles || articles.length === 0) {
-    return { title: '', badge, list: [] };
+    return { 
+      title: 'İçerik Bulunamadı', 
+      badge, 
+      img: '/images/footer.jpg', // Varsayılan bir resim yolu
+      list: [] 
+    };
   }
 
-  const first = articles[0];
-  // Strapi v4'te veriler genellikle 'attributes' içindedir.
-  const firstAttr = first.attributes || first; 
-  
-  // Resim URL'sini güvenli bir şekilde alalım
-  // Yapı: attributes -> Cover -> data -> attributes -> url
+  // İlk elemanı (Ana kart görseli olacak) al
+  const firstItem = articles[0];
+  const firstAttr = firstItem.attributes || firstItem; // attributes kontrolü
+
+  // Resim URL'sini güvenli bir şekilde bulma
   const firstCoverData = firstAttr.Cover?.data;
   const firstImgUrl = firstCoverData?.attributes?.url || firstCoverData?.url;
 
   return {
-    title: firstAttr.title,
+    title: firstAttr.title || 'Başlıksız İçerik',
     badge,
-    img: firstImgUrl
-      ? STRAPI_URL + firstImgUrl
-      : '/images/footer.jpg',
+    // Eğer resim URL varsa başına STRAPI_URL ekle, yoksa varsayılanı kullan
+    img: firstImgUrl ? `${STRAPI_URL}${firstImgUrl}` : '/images/footer.jpg',
 
-    list: articles.map((a: any) => {
-      const attr = a.attributes || a;
+    // Alt liste elemanlarını dönüştür
+    list: articles.map((item: any) => {
+      const attr = item.attributes || item;
       const coverData = attr.Cover?.data;
       const imgUrl = coverData?.attributes?.url || coverData?.url;
 
       return {
-        label: attr.title,
-        href: attr.slug ? `/${attr.slug}` : '#', // Slug'ın da attributes içinde olduğunu varsayıyoruz
-        img: imgUrl
-          ? STRAPI_URL + imgUrl
-          : '/images/footer.jpg',
+        label: attr.title || 'Başlıksız',
+        href: attr.slug ? `/${attr.slug}` : '#',
+        img: imgUrl ? `${STRAPI_URL}${imgUrl}` : '/images/footer.jpg',
       }
     }),
   }

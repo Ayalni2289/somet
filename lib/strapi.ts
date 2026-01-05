@@ -572,23 +572,21 @@ export async function getCategoryWithItems(slug: string) {
 }
 
 
+// lib/strapi.ts veya ilgili dosya
 export async function getArticlesByType(type: string) {
   try {
     const res = await fetch(
       `${STRAPI_URL}/api/articles?filters[type][$eq]=${type}&sort=publishedAt:desc&pagination[limit]=5&populate=Cover`,
-      { cache: 'no-store' }
+      { cache: 'no-store' } // Önbellek yapmasın, güncel veri gelsin
     )
 
-    if (!res.ok) {
-      console.error(`API Hatası: ${res.statusText}`);
-      return [];
-    }
+    if (!res.ok) return [];
 
     const json = await res.json()
-    // Strapi v4 'data' array'ini döner
-    return json.data || []; 
+    // Strapi v4 response yapısı: { data: [...], meta: {...} }
+    return json.data || [] 
   } catch (error) {
-    console.error("Fetch hatası:", error);
+    console.error("Veri çekme hatası:", error);
     return [];
   }
 }
@@ -646,7 +644,6 @@ export async function getKurulBySlug(slug: string) {
   }
 }
 
-
 export function strapiToKurul(strapiKurul: any) {
   if (!strapiKurul) return null;
 
@@ -659,7 +656,6 @@ export function strapiToKurul(strapiKurul: any) {
     sections: d.sections || [],
   };
 }
-
 
 export function blocksToHtml(blocks: any[]): string {
   if (!Array.isArray(blocks)) return ''

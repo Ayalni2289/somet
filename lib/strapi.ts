@@ -191,17 +191,14 @@ export async function getArticles(): Promise<any[]> {
 }
 
 export async function getArticleBySlug(slug: string) {
-  const query = `?filters[slug][$eq]=${slug}&populate[Cover]&populate[sections.Image]=media,caption&populate[sections.Text]=text&populate[sections.Quote]=quote,author`;
+  const query = `?filters[slug][$eq]=${slug}&populate[Cover]=*&populate[sections.Image]=media,caption&populate[sections.Text]=text&populate[sections.Quote]=quote,author`;
 
-  const res = await fetch(
-    `${STRAPI_URL}/api/articles${query}`,
-    {
-      headers: {
-        Authorization: STRAPI_API_TOKEN ? `Bearer ${STRAPI_API_TOKEN}` : '',
-      },
-      cache: "no-store",
-    }
-  );
+  const res = await fetch(`${STRAPI_URL}/api/articles${query}`, {
+    headers: {
+      Authorization: STRAPI_API_TOKEN ? `Bearer ${STRAPI_API_TOKEN}` : '',
+    },
+    cache: "no-store",
+  });
 
   if (!res.ok) return null;
 

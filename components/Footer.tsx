@@ -82,9 +82,9 @@ const Footer: React.FC = () => {
                 <h4 className="text-purple-700 font-semibold mb-4">Eğitim</h4>
                 <ul className="space-y-2">
                 <li><a href="/egitim-merkezi" >Eğitim Merkezi</a></li>
-                <li><a href="/burs-olanaklarimiz" >ZETTE Modeli</a></li>
-                <li><a href="/degerlerimiz" >Zihinsel Yetersizlik</a></li>
-                <li><a href="/destek-programlarimiz" >Ailelere Öğütler</a></li>
+                <li><a href="/zette-modeli" >ZETTE Modeli</a></li>
+                <li><a href="/zihinsel-engellilik" >Zihinsel Yetersizlik</a></li>
+                <li><a href="/ailelere-ogutler" >Ailelere Öğütler</a></li>
                </ul>
             </div>
             <div className="flex-1 min-w-[220px]">

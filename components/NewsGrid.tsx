@@ -14,7 +14,6 @@ type NewsItem = {
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL!
 
 function mapArticlesToNewsItem(articles: any[], badge: string): NewsItem {
-  // Veri yoksa boş dön
   if (!articles || articles.length === 0) {
     return { 
       title: '', 
@@ -24,25 +23,32 @@ function mapArticlesToNewsItem(articles: any[], badge: string): NewsItem {
     };
   }
 
-  // İlk elemanı al
   const firstItem = articles[0];
   const firstAttr = firstItem.attributes || firstItem;
 
-  // --- DEBUG İÇİN EKLENDİ ---
-  // Tarayıcı konsolunda (F12) bu çıktıyı kontrol et. Resim verisi nerede duruyor görelim.
-  if (badge === 'HABERLER') {
-      console.log('HABERLER İlk Kayıt Detayı:', JSON.stringify(firstAttr, null, 2));
-  }
-  // -------------------------
-
-  // Resim verisini bulmaya çalış (Hem 'Cover' hem 'cover' hem de 'image' deniyoruz)
-  const imageField = firstAttr.Cover || firstAttr.cover || firstAttr.Image || firstAttr.image;
-  const firstCoverData = imageField?.data;
+  // --- RESİM BULMA LOJİĞİ GÜNCELLENDİ ---
   
-  // URL'yi al
-  const rawUrl = firstCoverData?.attributes?.url || firstCoverData?.url;
+  // 1. Resim alanını bul (Büyük/Küçük harf duyarlı)
+  const imageField = firstAttr.Cover || firstAttr.cover || firstAttr.Image || firstAttr.image;
 
-  // Tam URL'yi oluştur
+  let rawUrl = null;
+
+  if (imageField) {
+      // SENİN DURUMUN: Cloudinary direkt URL veriyor (data katmanı yok)
+      if (imageField.url) {
+          rawUrl = imageField.url;
+      }
+      // YEDEK: Standart Strapi yapısı (data -> attributes -> url)
+      else if (imageField.data?.attributes?.url) {
+          rawUrl = imageField.data.attributes.url;
+      }
+      // YEDEK 2: Bazı durumlarda (data -> url)
+      else if (imageField.data?.url) {
+          rawUrl = imageField.data.url;
+      }
+  }
+
+  // 2. URL'yi İşle (Cloudinary ise dokunma, Local ise başına sunucu adresi ekle)
   const finalImgUrl = rawUrl 
     ? (rawUrl.startsWith('http') ? rawUrl : `${STRAPI_URL}${rawUrl}`)
     : '/images/footer.jpg';
@@ -55,13 +61,18 @@ function mapArticlesToNewsItem(articles: any[], badge: string): NewsItem {
     list: articles.map((a: any) => {
       const attr = a.attributes || a;
       
-      // Liste elemanları için de aynı esnek kontrol
+      // Liste elemanları için de aynı mantık
       const imgField = attr.Cover || attr.cover || attr.Image || attr.image;
-      const imgData = imgField?.data;
-      const url = imgData?.attributes?.url || imgData?.url;
+      let itemRawUrl = null;
 
-      const itemImgUrl = url 
-        ? (url.startsWith('http') ? url : `${STRAPI_URL}${url}`)
+      if (imgField) {
+          if (imgField.url) itemRawUrl = imgField.url; // Senin yapın
+          else if (imgField.data?.attributes?.url) itemRawUrl = imgField.data.attributes.url;
+          else if (imgField.data?.url) itemRawUrl = imgField.data.url;
+      }
+
+      const itemImgUrl = itemRawUrl 
+        ? (itemRawUrl.startsWith('http') ? itemRawUrl : `${STRAPI_URL}${itemRawUrl}`)
         : '/images/footer.jpg';
 
       return {

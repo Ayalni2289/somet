@@ -63,18 +63,37 @@ export default function ArticleTemplate({
     /* =======================
        IMAGE BLOCK
     ======================= */
-    if (type === 'image.image-block') {
-      const imgData = section?.image?.data || section?.image
-      const src = getStrapiImageUrl(imgData?.attributes?.url || imgData?.url)
-      if (!src) return null
+if (type === 'image.image-block') {
+  const imgData = section?.image?.data || section?.image;
+  
+  // Dizi kontrolü eklendi (Çoklu resim seçildiyse patlamaması için)
+  const targetImage = Array.isArray(imgData) ? imgData[0] : imgData;
+  
+  const rawUrl = targetImage?.attributes?.url || targetImage?.url;
+  const src = getStrapiImageUrl(rawUrl);
 
-      return (
-        <figure key={idx} style={{ margin: '20px 0' }}>
-          {section.caption && <p style={{ fontStyle: 'italic' }}>{section.caption}</p>}
-          <img src={src} alt={section?.caption || title} style={{ width: '100%', height: 'auto', borderRadius: 8 }} />
-        </figure>
-      )
-    }
+  // Eğer src yoksa null dönmek yerine konsola hata bas (Geliştirme aşamasında)
+  if (!src) {
+    console.warn('Resim URL oluşturulamadı, section verisi:', section);
+    return null;
+  }
+
+  return (
+    <figure key={idx} style={{ margin: '20px 0', display: 'flex', flexDirection: 'column' }}>
+      <img 
+        src={src} 
+        alt={section?.caption || title || 'Görsel'} 
+        style={{ width: '100%', height: 'auto', borderRadius: 8 }} 
+      />
+      {/* Genelde caption resmin altında olur, yer değiştirdim */}
+      {section.caption && (
+        <figcaption style={{ fontStyle: 'italic', marginTop: '8px', textAlign: 'center', color: '#666' }}>
+          {section.caption}
+        </figcaption>
+      )}
+    </figure>
+  );
+}
 
     /* =======================
        GALLERY BLOCK

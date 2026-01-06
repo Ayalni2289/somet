@@ -1045,7 +1045,7 @@ a{
 /* Article body (scoped) — styles for the HTML content stored in `data/articles.ts` */
 .article-content { color: #222; line-height: 1.6; font-size: 16px;  }
 .article-content p { margin: 0 0 16px 0; }
-.article-content strong { font-weight: 800; color: #111 }
+.article-content strong { font-weight: 600; color: #111 }
 .article-content h1, .article-content h2, .article-content h3 { margin: 20px 0 12px 0; color: #111; font-weight: 900; }
 .article-content ul { margin: 0 0 16px 1.25rem; padding: 0 }
 .article-content li { margin-bottom: 8px }

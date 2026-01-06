@@ -502,7 +502,7 @@ export interface ApiArticleArticle extends Struct.CollectionTypeSchema {
         'text.rich-text',
         'image.image-block',
         'images.gallery-block',
-        'text.html-text',
+        'link.link',
       ]
     >;
     seoDescription: Schema.Attribute.Text;

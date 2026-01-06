@@ -26,6 +26,18 @@ export interface ImagesGalleryBlock extends Struct.ComponentSchema {
   };
 }
 
+export interface LinkLink extends Struct.ComponentSchema {
+  collectionName: 'components_link_links';
+  info: {
+    displayName: 'Link';
+    icon: 'stack';
+  };
+  attributes: {
+    file: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    label: Schema.Attribute.String;
+  };
+}
+
 export interface SectionsBoardSection extends Struct.ComponentSchema {
   collectionName: 'components_sections_board_sections';
   info: {
@@ -95,6 +107,7 @@ declare module '@strapi/strapi' {
     export interface ComponentSchemas {
       'image.image-block': ImageImageBlock;
       'images.gallery-block': ImagesGalleryBlock;
+      'link.link': LinkLink;
       'sections.board-section': SectionsBoardSection;
       'shared.board-member': SharedBoardMember;
       'test.archive': TestArchive;

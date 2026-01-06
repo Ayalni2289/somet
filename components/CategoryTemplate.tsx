@@ -42,7 +42,7 @@ export default function CategoryTemplate({ title, items, currentPage, breadcrumb
       <main style={{ padding: '48px 0 80px 0' }}>
         <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={whiteBoxStyle}>
-            <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 32 }}>
+            <section style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 32 }}>
               {pagedItems.map((it) => (
                 <Link key={it.id} href={`/${it.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                   <article style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

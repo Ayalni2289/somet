@@ -1,0 +1,14 @@
+{
+  "collectionName": "components_text_html_text_s",
+  "info": {
+    "displayName": "html(text)",
+    "icon": "arrowUp"
+  },
+  "options": {},
+  "attributes": {
+    "json": {
+      "type": "json"
+    }
+  },
+  "config": {}
+}

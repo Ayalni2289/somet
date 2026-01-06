@@ -35,7 +35,8 @@
       "components": [
         "text.rich-text",
         "image.image-block",
-        "images.gallery-block"
+        "images.gallery-block",
+        "text.html-text"
       ]
     },
     "isPublished": {

@@ -498,7 +498,12 @@ export interface ApiArticleArticle extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
     sections: Schema.Attribute.DynamicZone<
-      ['text.rich-text', 'image.image-block', 'images.gallery-block']
+      [
+        'text.rich-text',
+        'image.image-block',
+        'images.gallery-block',
+        'text.html-text',
+      ]
     >;
     seoDescription: Schema.Attribute.Text;
     seoTitle: Schema.Attribute.String;

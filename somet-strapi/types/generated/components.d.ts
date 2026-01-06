@@ -68,6 +68,17 @@ export interface TestArchive extends Struct.ComponentSchema {
   };
 }
 
+export interface TextHtmlText extends Struct.ComponentSchema {
+  collectionName: 'components_text_html_text_s';
+  info: {
+    displayName: 'html(text)';
+    icon: 'arrowUp';
+  };
+  attributes: {
+    json: Schema.Attribute.JSON;
+  };
+}
+
 export interface TextRichText extends Struct.ComponentSchema {
   collectionName: 'components_text_rich_texts';
   info: {
@@ -87,6 +98,7 @@ declare module '@strapi/strapi' {
       'sections.board-section': SectionsBoardSection;
       'shared.board-member': SharedBoardMember;
       'test.archive': TestArchive;
+      'text.html-text': TextHtmlText;
       'text.rich-text': TextRichText;
     }
   }

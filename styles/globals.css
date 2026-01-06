@@ -633,9 +633,14 @@ body {
 	font-family: 'QueenofEternity', sans-serif;
 	color:#510179;
 }
-pre {
-  white-space: pre-wrap; /* Metnin alt satıra geçmesini sağlar */
-  word-break: break-all;
+pre, code {
+  /* Font Birliği */
+  font-family: inherit !important;
+  
+  /* Yatay Kayma Çözümü */
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  overflow-wrap: anywhere !important;
 }
 #searchButton{
   color: #fff;

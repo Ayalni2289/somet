@@ -633,7 +633,10 @@ body {
 	font-family: 'QueenofEternity', sans-serif;
 	color:#510179;
 }
-
+pre {
+  white-space: pre-wrap; /* Metnin alt satıra geçmesini sağlar */
+  word-break: break-all;
+}
 #searchButton{
   color: #fff;
   border-left: 1px solid #fff;

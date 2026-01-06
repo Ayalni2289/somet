@@ -127,9 +127,26 @@ export function serializeSectionsToHtml(sections: any[]): string {
     .map((section) => {
       const type = section.__component;
 
-      // Rich Text
+      // Rich Text Bölümü
       if (type === 'text.rich-text' || type === 'blocks.rich-text') {
-        return section.text || section.richText || '';
+        let content = section.text || section.richText || '';
+
+        // 1. Markdown Linklerini HTML Linklerine Çevir: [Metin](URL) -> <a href="URL">Metin</a>
+        content = content.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+          // Eğer URL bir dosya uzantısı ile bitiyorsa otomatik 'download' ekleyelim
+          const isFile = url.match(/\.(pdf|doc|docx|zip|jpg|png)$/i);
+          
+          return `<a href="${url}" 
+                     ${isFile ? 'download' : ''} 
+                     target="_blank" 
+                     rel="noopener noreferrer" 
+                     style="color: #2563eb; text-decoration: underline; font-weight: 500;">
+                    ${text}
+                  </a>`;
+        });
+
+        // 2. Satır başlarını <br /> ile değiştir (Markdown'daki alt satıra geçişleri korumak için)
+        return content.replace(/\n/g, '<br />');
       }
 
       // Single Image
@@ -139,6 +156,26 @@ export function serializeSectionsToHtml(sections: any[]): string {
         if (!url) return '';
         const caption = section.caption ? `<figcaption>${section.caption}</figcaption>` : '';
         return `<figure><img src="${url}" alt="${section.caption || ''}" />${caption}</figure>`;
+      }
+
+      // Download Link (Custom Component)
+      if (type === 'sections.download-link' || type === 'html.text') { 
+        const fileData = section.file?.data || section.file;
+        const url = getStrapiImageUrl(fileData?.attributes?.url || fileData?.url);
+        
+        if (!url) return '';
+
+        return `
+          <div class="download-block" style="margin: 30px 0; text-align: center;">
+            <a href="${url}" 
+              download 
+              target="_blank" 
+              style="display: inline-flex; align-items: center; gap: 10px; background-color: #2563eb; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; transition: background 0.2s;">
+              <span>📥</span>
+              ${section.Label || 'Dosyayı İndir'}
+            </a>
+          </div>
+        `;
       }
 
       // Gallery Block
@@ -203,7 +240,14 @@ export async function getArticles(): Promise<any[]> {
                   fields: ['url', 'alternativeText', 'caption']
                 }
               }
-            }
+            },
+            'sections.download-link': {
+  populate: {
+    file: {
+      fields: ['url', 'name', 'ext']
+    }
+  }
+}
           }
         }
       }

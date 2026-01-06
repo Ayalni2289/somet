@@ -59,7 +59,52 @@ export default function ArticleTemplate({
         </div>
       )
     }
+if (type === 'sections.download-link') {
+    const fileData = section?.file?.data || section?.file;
+    const url = getStrapiImageUrl(fileData?.attributes?.url || fileData?.url);
 
+    if (!url) return null;
+
+    return (
+      <div key={idx} className="download-block" style={{ margin: '30px 0', textAlign: 'center' }}>
+        <a
+          href={url}
+          download
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '10px',
+            backgroundColor: '#2563eb',
+            color: '#fff',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            textDecoration: 'none',
+            fontWeight: 'bold',
+            transition: 'background 0.2s'
+          }}
+        >
+          <span>📥</span>
+          {section.Label || 'Dosyayı İndir'}
+        </a>
+      </div>
+    );
+  }
+
+  /* =======================
+      HTML / CUSTOM TEXT (YENİ)
+  ======================= */
+  if (type === 'html(text)') {
+    // Eğer bu alan sadece ham HTML veya özel metin içeriyorsa
+    return (
+      <div 
+        key={idx} 
+        className="custom-html-container" 
+        dangerouslySetInnerHTML={{ __html: section.json || section.text || '' }} 
+      />
+    );
+  }
     /* =======================
        IMAGE BLOCK
     ======================= */

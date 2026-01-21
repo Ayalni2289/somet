@@ -65,7 +65,7 @@ const Footer: React.FC = () => {
                 <ul className="space-y-2">
                 <li><a href="/kurucularimiz" >Kurucular</a></li>
                 <li><a href="/mutevelli-heyet" >Yönetim</a></li>
-                <li><a href="/kurucularimiz" >Vakıf Senedi</a></li>
+                <li><a href="/vakif-senedi" >Vakıf Senedi</a></li>
                 <li><a href="/tuzuk" >Dernek Tüzüğü</a></li>
                 </ul>
             </div>

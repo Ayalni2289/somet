@@ -4,6 +4,13 @@ import { getStrapiImageUrl } from '../lib/strapi'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 
+type relatedArticle ={
+  id: number
+  title: string
+  slug: string
+  coverImage?: string
+}
+
 type Props = {
   title: string
   date?: string
@@ -20,6 +27,8 @@ type Props = {
   seoDescription?: string
   coverImage?: string // coverImage için yeni prop
   serializeSectionsToHtml?: (sections: any[]) => string // fallback html fonksiyonu
+  relatedArticles?: relatedArticle[]
+  categoryLabel?: string
 }
 
 export default function ArticleTemplate({
@@ -34,6 +43,8 @@ export default function ArticleTemplate({
   images,
   contentStyles,
   serializeSectionsToHtml,
+  relatedArticles,
+  categoryLabel,
 }: Props) {
 
   const renderSection = (section: any, idx: number) => {
@@ -261,6 +272,70 @@ if (type === 'image.image-block') {
             )}
           </div>
         </div>
+        {relatedArticles && relatedArticles.length > 0 && (
+  <section style={{ background: '#f8fafc', padding: '80px 0' }}>
+    <div
+      className="container"
+      style={{
+        maxWidth: 1100,
+        margin: '0 auto',
+        padding: '0 20px',
+      }}
+    >
+      <h2
+        style={{
+          fontSize: 32,
+          marginBottom: 30,
+          textAlign: 'center',
+        }}
+      >
+        {categoryLabel || 'İlgili İçerikler'}
+      </h2>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+          gap: 24,
+        }}
+      >
+        {relatedArticles.map((item) => (
+          <a
+            key={item.id}
+            href={`/${item.slug}`}
+            style={{
+              textDecoration: 'none',
+              color: '#111',
+              background: '#fff',
+              borderRadius: 14,
+              overflow: 'hidden',
+              boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
+              transition: 'transform .2s',
+            }}
+          >
+            {item.coverImage && (
+              <img
+                src={item.coverImage}
+                alt={item.title}
+                style={{
+                  width: '100%',
+                  height: 180,
+                  objectFit: 'cover',
+                }}
+              />
+            )}
+
+            <div style={{ padding: 16 }}>
+              <h3 style={{ fontSize: 17, lineHeight: 1.4 }}>
+                {item.title}
+              </h3>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
       </main>
 
       <Footer />

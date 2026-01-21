@@ -4,6 +4,7 @@ import {
   getCategoryWithItems,
   strapiToArticle,
   getStrapiImageUrl,
+  getRelatedArticles,
 } from '@/lib/strapi';
 import ArticleTemplate from '@/components/ArticleTemplate';
 import CategoryTemplate from '@/components/CategoryTemplate';
@@ -28,20 +29,51 @@ export default async function Page({
   ========================= */
   const rawArticle = await getArticleBySlug(slug);
 
-  if (rawArticle) {
-    // strapiToArticle ham JSON'u alır ve coverImage: "http://..." şeklinde bir obje döner
-    const article = strapiToArticle(rawArticle);
+ if (rawArticle) {
+  const article = strapiToArticle(rawArticle);
 
-    return (
-      <ArticleTemplate
-        title={article.title}
-        sections={article.sections}
-        coverImage={article.coverImage} // ✅ Artık strapiToArticle'dan gelen hazır URL
-        seoTitle={article.seoTitle}
-        seoDescription={article.seoDescription}
-      />
-    );
-  }
+  const type =
+    rawArticle.attributes?.type ??
+    rawArticle.type;
+
+  const relatedArticlesRaw = await getRelatedArticles(type, slug);
+
+  const relatedArticles = relatedArticlesRaw.map((item: any) => {
+    const attr = item.attributes ?? item;
+
+    return {
+      id: item.id,
+      title: attr.title,
+      slug: attr.slug,
+      coverImage: getStrapiImageUrl(
+        attr.cover?.data?.attributes?.url ||
+        attr.image?.data?.attributes?.url
+      ),
+    };
+  });
+
+  return (
+    <ArticleTemplate
+      title={article.title}
+      sections={article.sections}
+      coverImage={article.coverImage}
+      seoTitle={article.seoTitle}
+      seoDescription={article.seoDescription}
+
+      /* ✅ DOĞRU PROP */
+      relatedArticles={relatedArticles}
+
+      /* ✅ LABEL */
+      categoryLabel={
+        type === 'haber'
+          ? 'Diğer Haberler'
+          : type === 'duyuru'
+          ? 'Diğer Duyurular'
+          : 'Diğer Etkinlikler'
+      }
+    />
+  );
+}
 
   const categoryResult = await getCategoryWithItems(slug);
 

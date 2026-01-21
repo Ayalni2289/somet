@@ -728,3 +728,23 @@ export function blocksToHtml(blocks: any[]): string {
     })
     .join('')
 }
+
+export async function getRelatedArticles(
+  type: string,
+  excludeSlug: string
+) {
+  try {
+    const res = await fetch(
+      `${STRAPI_URL}/api/articles?filters[type][$eq]=${type}&filters[slug][$ne]=${excludeSlug}&sort=publishedAt:desc&populate=Cover`,
+      { cache: 'no-store' }
+    );
+
+    if (!res.ok) return [];
+
+    const json = await res.json();
+    return json.data || [];
+  } catch (err) {
+    console.error('Related article error:', err);
+    return [];
+  }
+}

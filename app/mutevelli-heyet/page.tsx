@@ -52,7 +52,19 @@ export default async function MutevelliHeyet() {
               transform: 'translateY(-60px)',
             }}
           >
-            <div style={{ maxWidth: 800, margin: '0 auto' }}>
+            <div
+              style={{
+                maxWidth: 1100,
+                margin: '0 auto',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 28,
+                alignItems: 'center',
+                backgroundColor: 'transparent',
+                borderRadius: 0,
+                padding: 0,
+              }}
+            >
               {/* Kurul Üyeleri */}
               {sections.map((section: any) => (
                 <div key={section.id ?? section.title} style={{ marginBottom: 60 }}>

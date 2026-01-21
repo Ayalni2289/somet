@@ -9,8 +9,8 @@ type Slide = {
 }
 
 const slides: Slide[] = [
-  { img: '/images/bagis-slider-2.png', title: '', description: 'Kıymetli bağışlarınızla, daha fazla zihinsel engelli bireye, daha iyi hizmet sağlıyoruz.' },
   { img: '/images/thumbnail_Ana Giriş sayfa.jpg', title: 'Somet 20 Yaşında!', description: 'İlk günkü heyecanla, sevgiyle ve sabırla hep daha iyiye…' },
+  { img: '/images/bagis-slider-2.png', title: '', description: 'Kıymetli bağışlarınızla, daha fazla zihinsel engelli bireye, daha iyi hizmet sağlıyoruz.' },
   { img: '/images/yeni-somet-binasi-2.png', title: 'Bir Hayalden Gerçeğe…', description: 'SOMET’in amaca özgün yapılmış yeni eğitim merkezi hizmete açıldı.' },
 ]
 

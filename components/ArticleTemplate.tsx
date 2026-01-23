@@ -4,7 +4,7 @@ import { getStrapiImageUrl } from '../lib/strapi'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 
-type relatedArticle ={
+type relatedArticle = {
   id: number
   title: string
   slug: string
@@ -70,86 +70,86 @@ export default function ArticleTemplate({
         </div>
       )
     }
-if (type === 'sections.download-link') {
-    const fileData = section?.file?.data || section?.file;
-    const url = getStrapiImageUrl(fileData?.attributes?.url || fileData?.url);
+    if (type === 'sections.download-link') {
+      const fileData = section?.file?.data || section?.file;
+      const url = getStrapiImageUrl(fileData?.attributes?.url || fileData?.url);
 
-    if (!url) return null;
+      if (!url) return null;
 
-    return (
-      <div key={idx} className="download-block" style={{ margin: '30px 0', textAlign: 'center' }}>
-        <a
-          href={url}
-          download
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '10px',
-            backgroundColor: '#2563eb',
-            color: '#fff',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            textDecoration: 'none',
-            fontWeight: 'bold',
-            transition: 'background 0.2s'
-          }}
-        >
-          <span>📥</span>
-          {section.Label || 'Dosyayı İndir'}
-        </a>
-      </div>
-    );
-  }
+      return (
+        <div key={idx} className="download-block" style={{ margin: '30px 0', textAlign: 'center' }}>
+          <a
+            href={url}
+            download
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '10px',
+              backgroundColor: '#2563eb',
+              color: '#fff',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              textDecoration: 'none',
+              fontWeight: 'bold',
+              transition: 'background 0.2s'
+            }}
+          >
+            <span>📥</span>
+            {section.Label || 'Dosyayı İndir'}
+          </a>
+        </div>
+      );
+    }
 
-  /* =======================
-      HTML / CUSTOM TEXT (YENİ)
-  ======================= */
-  if (type === 'html(text)') {
-    // Eğer bu alan sadece ham HTML veya özel metin içeriyorsa
-    return (
-      <div 
-        key={idx} 
-        className="custom-html-container" 
-        dangerouslySetInnerHTML={{ __html: section.json || section.text || '' }} 
-      />
-    );
-  }
+    /* =======================
+        HTML / CUSTOM TEXT (YENİ)
+    ======================= */
+    if (type === 'html(text)') {
+      // Eğer bu alan sadece ham HTML veya özel metin içeriyorsa
+      return (
+        <div
+          key={idx}
+          className="custom-html-container"
+          dangerouslySetInnerHTML={{ __html: section.json || section.text || '' }}
+        />
+      );
+    }
     /* =======================
        IMAGE BLOCK
     ======================= */
-if (type === 'image.image-block') {
-  const imgData = section?.image?.data || section?.image;
-  
-  // Dizi kontrolü eklendi (Çoklu resim seçildiyse patlamaması için)
-  const targetImage = Array.isArray(imgData) ? imgData[0] : imgData;
-  
-  const rawUrl = targetImage?.attributes?.url || targetImage?.url;
-  const src = getStrapiImageUrl(rawUrl);
+    if (type === 'image.image-block') {
+      const imgData = section?.image?.data || section?.image;
 
-  // Eğer src yoksa null dönmek yerine konsola hata bas (Geliştirme aşamasında)
-  if (!src) {
-    console.warn('Resim URL oluşturulamadı, section verisi:', section);
-    return null;
-  }
+      // Dizi kontrolü eklendi (Çoklu resim seçildiyse patlamaması için)
+      const targetImage = Array.isArray(imgData) ? imgData[0] : imgData;
 
-  return (
-    <figure key={idx} style={{ margin: '20px 0', display: 'flex', flexDirection: 'column' }}>
-      <img 
-        src={src} 
-        alt={section?.caption || title || 'Görsel'} 
-        style={{ width: '100%', height: 'auto', borderRadius: 8 }} 
-      />
-      {/* Genelde caption resmin altında olur, yer değiştirdim */}
-      {section.caption && (
-        <figcaption style={{ fontStyle: 'italic', marginTop: '8px', textAlign: 'center', color: '#666' }}>
-          {section.caption}
-        </figcaption>
-      )}
-    </figure>
-  );
-}
+      const rawUrl = targetImage?.attributes?.url || targetImage?.url;
+      const src = getStrapiImageUrl(rawUrl);
+
+      // Eğer src yoksa null dönmek yerine konsola hata bas (Geliştirme aşamasında)
+      if (!src) {
+        console.warn('Resim URL oluşturulamadı, section verisi:', section);
+        return null;
+      }
+
+      return (
+        <figure key={idx} style={{ margin: '20px 0', display: 'flex', flexDirection: 'column' }}>
+          <img
+            src={src}
+            alt={section?.caption || title || 'Görsel'}
+            style={{ width: '100%', height: 'auto', borderRadius: 8 }}
+          />
+          {/* Genelde caption resmin altında olur, yer değiştirdim */}
+          {section.caption && (
+            <figcaption style={{ fontStyle: 'italic', marginTop: '8px', textAlign: 'center', color: '#666' }}>
+              {section.caption}
+            </figcaption>
+          )}
+        </figure>
+      );
+    }
 
     /* =======================
        GALLERY BLOCK
@@ -167,7 +167,7 @@ if (type === 'image.image-block') {
             <img
               src={src}
               alt={m?.attributes?.alternativeText || m?.alternativeText || ''}
-              style={{ width: '100%', display: 'block', height: '200px', objectFit: 'cover' }}
+              style={{ width: '100%', display: 'block', height: 'auto', objectFit: 'contain' }}
             />
           </div>
         )
@@ -273,69 +273,69 @@ if (type === 'image.image-block') {
           </div>
         </div>
         {relatedArticles && relatedArticles.length > 0 && (
-  <section style={{ background: '#f8fafc', padding: '80px 0' }}>
-    <div
-      className="container"
-      style={{
-        maxWidth: 1100,
-        margin: '0 auto',
-        padding: '0 20px',
-      }}
-    >
-      <h2
-        style={{
-          fontSize: 32,
-          marginBottom: 30,
-          textAlign: 'center',
-        }}
-      >
-        {categoryLabel || 'İlgili İçerikler'}
-      </h2>
-
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-          gap: 24,
-        }}
-      >
-        {relatedArticles.map((item) => (
-          <a
-            key={item.id}
-            href={`/${item.slug}`}
-            style={{
-              textDecoration: 'none',
-              color: '#111',
-              background: '#fff',
-              borderRadius: 14,
-              overflow: 'hidden',
-              boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-              transition: 'transform .2s',
-            }}
-          >
-            {item.coverImage && (
-              <img
-                src={item.coverImage}
-                alt={item.title}
+          <section style={{ background: '#f8fafc', padding: '80px 0' }}>
+            <div
+              className="container"
+              style={{
+                maxWidth: 1100,
+                margin: '0 auto',
+                padding: '0 20px',
+              }}
+            >
+              <h2
                 style={{
-                  width: '100%',
-                  height: 180,
-                  objectFit: 'cover',
+                  fontSize: 32,
+                  marginBottom: 30,
+                  textAlign: 'center',
                 }}
-              />
-            )}
+              >
+                {categoryLabel || 'İlgili İçerikler'}
+              </h2>
 
-            <div style={{ padding: 16 }}>
-              <h3 style={{ fontSize: 17, lineHeight: 1.4 }}>
-                {item.title}
-              </h3>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+                  gap: 24,
+                }}
+              >
+                {relatedArticles.map((item) => (
+                  <a
+                    key={item.id}
+                    href={`/${item.slug}`}
+                    style={{
+                      textDecoration: 'none',
+                      color: '#111',
+                      background: '#fff',
+                      borderRadius: 14,
+                      overflow: 'hidden',
+                      boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
+                      transition: 'transform .2s',
+                    }}
+                  >
+                    {item.coverImage && (
+                      <img
+                        src={item.coverImage}
+                        alt={item.title}
+                        style={{
+                          width: '100%',
+                          height: 180,
+                          objectFit: 'cover',
+                        }}
+                      />
+                    )}
+
+                    <div style={{ padding: 16 }}>
+                      <h3 style={{ fontSize: 17, lineHeight: 1.4 }}>
+                        {item.title}
+                      </h3>
+                    </div>
+                  </a>
+                ))}
+              </div>
             </div>
-          </a>
-        ))}
-      </div>
-    </div>
-  </section>
-)}
+          </section>
+        )}
       </main>
 
       <Footer />

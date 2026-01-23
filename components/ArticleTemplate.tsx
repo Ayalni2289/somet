@@ -176,7 +176,7 @@ export default function ArticleTemplate({
       if (!imgs.length) return null
 
       return (
-        <div key={idx} className="article-gallery" style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+        <div key={idx} className="article-gallery" style={{ display: 'grid', gap: 12 }}>
           {imgs}
         </div>
       )

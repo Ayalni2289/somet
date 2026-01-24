@@ -422,6 +422,7 @@ export default function ArticleTemplate({
                 maxWidth: 1100,
                 margin: '0 auto',
                 padding: '0 20px',
+                display: "block",
               }}
             >
               <h2

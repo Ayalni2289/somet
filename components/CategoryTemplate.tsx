@@ -66,13 +66,48 @@ export default function CategoryTemplate({ title, items, currentPage, breadcrumb
                   {currentPage > 1 && (
                     <Link href={`?page=${currentPage - 1}`} style={{ padding: '8px 12px', borderRadius: 6, background: '#fff', boxShadow: '0 6px 18px rgba(0,0,0,0.06)' }}>‹</Link>
                   )}
-                  {Array.from({ length: totalPages }).map((_, idx) => {
-                    const n = idx + 1
-                    const isActive = n === currentPage
-                    return (
-                      <Link key={n} href={`?page=${n}`} style={{ padding: '8px 12px', borderRadius: 6, background: isActive ? '#5b2b7b' : '#fff', color: isActive ? '#fff' : '#6b7280', boxShadow: isActive ? 'none' : '0 6px 18px rgba(0,0,0,0.06)' }}>{n}</Link>
-                    )
-                  })}
+                  
+                  {(() => {
+                    const pages = [];
+                    const showEllipsisStart = currentPage > 3;
+                    const showEllipsisEnd = currentPage < totalPages - 2;
+                    
+                    // İlk sayfa
+                    pages.push(
+                      <Link key={1} href={`?page=1`} style={{ padding: '8px 12px', borderRadius: 6, background: currentPage === 1 ? '#5b2b7b' : '#fff', color: currentPage === 1 ? '#fff' : '#6b7280', boxShadow: currentPage === 1 ? 'none' : '0 6px 18px rgba(0,0,0,0.06)' }}>1</Link>
+                    );
+                    
+                    // Sol taraf üç nokta
+                    if (showEllipsisStart) {
+                      pages.push(<span key="ellipsis-start" style={{ padding: '8px 12px', color: '#6b7280' }}>...</span>);
+                    }
+                    
+                    // Mevcut sayfanın etrafındaki sayfalar
+                    const start = Math.max(2, currentPage - 1);
+                    const end = Math.min(totalPages - 1, currentPage + 1);
+                    
+                    for (let i = start; i <= end; i++) {
+                      if (i !== 1 && i !== totalPages) {
+                        const isActive = i === currentPage;
+                        pages.push(
+                          <Link key={i} href={`?page=${i}`} style={{ padding: '8px 12px', borderRadius: 6, background: isActive ? '#5b2b7b' : '#fff', color: isActive ? '#fff' : '#6b7280', boxShadow: isActive ? 'none' : '0 6px 18px rgba(0,0,0,0.06)' }}>{i}</Link>
+                        );
+                      }
+                    }
+                    
+                    // Sağ taraf üç nokta
+                    if (showEllipsisEnd) {
+                      pages.push(<span key="ellipsis-end" style={{ padding: '8px 12px', color: '#6b7280' }}>...</span>);
+                    }
+                    
+                    // Son sayfa
+                    if (totalPages > 1) {
+                      pages.push(
+                        <Link key={totalPages} href={`?page=${totalPages}`} style={{ padding: '8px 12px', borderRadius: 6, background: currentPage === totalPages ? '#5b2b7b' : '#fff', color: currentPage === totalPages ? '#fff' : '#6b7280', boxShadow: currentPage === totalPages ? 'none' : '0 6px 18px rgba(0,0,0,0.06)' }}>{totalPages}</Link>
+                      );
+                    }
+                    return pages;
+                  })()}
                   {currentPage < totalPages && (
                     <Link href={`?page=${currentPage + 1}`} style={{ padding: '8px 12px', borderRadius: 6, background: '#fff', boxShadow: '0 6px 18px rgba(0,0,0,0.06)' }}>›</Link>
                   )}

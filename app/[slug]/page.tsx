@@ -21,7 +21,7 @@ export default async function Page({
   const { slug } = params;
   const currentPage = Math.max(
     1,
-    parseInt(searchParams.page ?? '1', 10)
+    parseInt(searchParams?.page ?? '1', 10)
   );
 
   /* =========================
@@ -29,51 +29,60 @@ export default async function Page({
   ========================= */
   const rawArticle = await getArticleBySlug(slug);
 
- if (rawArticle) {
-  const article = strapiToArticle(rawArticle);
+  if (rawArticle) {
+    const article = strapiToArticle(rawArticle);
 
-  const type =
-    rawArticle.attributes?.type ??
-    rawArticle.type;
+    const type =
+      rawArticle.attributes?.type ??
+      rawArticle.type;
 
-  const relatedArticlesRaw = await getRelatedArticles(type, slug);
+    // getRelatedArticles artık { data, meta } dönüyor
+    const { data: relatedArticlesRaw, meta } = await getRelatedArticles(
+      type,
+      slug,
+      currentPage, // page
+      12           // pageSize
+    );
 
-  const relatedArticles = relatedArticlesRaw.map((item: any) => {
-    const attr = item.attributes ?? item;
+    const relatedArticles = relatedArticlesRaw.map((item: any) => {
+      const attr = item.attributes ?? item;
 
-    return {
-      id: item.id,
-      title: attr.title,
-      slug: attr.slug,
-      coverImage: getStrapiImageUrl(
-        attr.cover?.data?.attributes?.url ||
-        attr.image?.data?.attributes?.url
-      ),
-    };
-  });
+      return {
+        id: item.id,
+        title: attr.title,
+        slug: attr.slug,
+        coverImage: getStrapiImageUrl(
+          attr.cover?.data?.attributes?.url ||
+          attr.image?.data?.attributes?.url
+        ),
+      };
+    });
 
-  return (
-    <ArticleTemplate
-      title={article.title}
-      sections={article.sections}
-      coverImage={article.coverImage}
-      seoTitle={article.seoTitle}
-      seoDescription={article.seoDescription}
+    return (
+      <ArticleTemplate
+        title={article.title}
+        sections={article.sections}
+        coverImage={article.coverImage}
+        seoTitle={article.seoTitle}
+        seoDescription={article.seoDescription}
 
-      /* ✅ DOĞRU PROP */
-      relatedArticles={relatedArticles}
+        /* ✅ DOĞRU PROP */
+        relatedArticles={relatedArticles}
 
-      /* ✅ LABEL */
-      categoryLabel={
-        type === 'haber'
-          ? 'Diğer Haberler'
-          : type === 'duyuru'
-          ? 'Diğer Duyurular'
-          : 'Diğer Etkinlikler'
-      }
-    />
-  );
-}
+        /* ✅ PAGINATION META */
+        pagination={meta?.pagination}
+
+        /* ✅ LABEL */
+        categoryLabel={
+          type === 'haber'
+            ? 'Diğer Haberler'
+            : type === 'duyuru'
+              ? 'Diğer Duyurular'
+              : 'Diğer Etkinlikler'
+        }
+      />
+    );
+  }
 
   const categoryResult = await getCategoryWithItems(slug);
 
@@ -85,16 +94,16 @@ export default async function Page({
     if (Array.isArray(rawItems) && rawItems.length > 0) {
       const items = rawItems.map((item: any) => {
         const itemAttrs = item.attributes ?? item;
-        
+
         // Resim verisine güvenli erişim
         const imgData = itemAttrs.image?.data?.attributes ?? itemAttrs.image?.attributes ?? itemAttrs.image ?? null;
-        
+
         return {
           id: item.id,
           title: itemAttrs.title,
           slug: itemAttrs.slug,
           // ✅ getStrapiImageUrl kullanarak tam URL alıyoruz
-          img: getStrapiImageUrl(imgData?.url), 
+          img: getStrapiImageUrl(imgData?.url),
         };
       });
 

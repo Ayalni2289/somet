@@ -135,7 +135,7 @@ export function serializeSectionsToHtml(sections: any[]): string {
         content = content.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
           // Eğer URL bir dosya uzantısı ile bitiyorsa otomatik 'download' ekleyelim
           const isFile = url.match(/\.(pdf|doc|docx|zip|jpg|png)$/i);
-          
+
           return `<a href="${url}" 
                      ${isFile ? 'download' : ''} 
                      target="_blank" 
@@ -159,10 +159,10 @@ export function serializeSectionsToHtml(sections: any[]): string {
       }
 
       // Download Link (Custom Component)
-      if (type === 'sections.download-link' || type === 'html.text') { 
+      if (type === 'sections.download-link' || type === 'html.text') {
         const fileData = section.file?.data || section.file;
         const url = getStrapiImageUrl(fileData?.attributes?.url || fileData?.url);
-        
+
         if (!url) return '';
 
         return `
@@ -215,10 +215,10 @@ export async function getArticles(): Promise<any[]> {
         sections: {
           on: {
             // Strapi Dynamic Zone bileşen isimleri (Senin serialize fonksiyonuna göre ayarlandı)
-            
+
             // 1. Rich Text (veya Blocks)
             'text.rich-text': {
-              populate: '*' 
+              populate: '*'
             },
             'blocks.rich-text': {
               populate: '*'
@@ -242,12 +242,12 @@ export async function getArticles(): Promise<any[]> {
               }
             },
             'sections.download-link': {
-  populate: {
-    file: {
-      fields: ['url', 'name', 'ext']
-    }
-  }
-}
+              populate: {
+                file: {
+                  fields: ['url', 'name', 'ext']
+                }
+              }
+            }
           }
         }
       }
@@ -276,7 +276,7 @@ export async function getArticles(): Promise<any[]> {
 
     const json = await res.json();
     return json?.data ?? [];
-    
+
   } catch (error) {
     console.error("Fetch error in getArticles:", error);
     return [];
@@ -290,10 +290,10 @@ export async function getArticleBySlug(slug: string) {
       filters: { slug: { $eq: slug } },
       populate: {
         // 1. DÜZELTME: 'cover' değil 'Cover' (Senin şemandaki orijinal isim)
-        Cover: { 
-          fields: ['url', 'alternativeText'] 
+        Cover: {
+          fields: ['url', 'alternativeText']
         },
-        
+
         // 2. DÜZELTME: Dynamic Zone için en garantili yöntem
         sections: {
           populate: '*'
@@ -302,7 +302,7 @@ export async function getArticleBySlug(slug: string) {
     };
 
     const queryStr = qs.stringify(queryObj, { encodeValuesOnly: true });
-    
+
     // Debug için URL'i yine basalım, çalışınca kaldırırsın
     console.log("REQUEST URL:", `${STRAPI_URL}/api/articles?${queryStr}`);
 
@@ -335,10 +335,10 @@ export function strapiToArticle(raw: any) {
 
   // Cover resmi kontrolü (attributes içinde mi değil mi?)
   let coverUrl = undefined;
-  
+
   // Cover verisi var mı kontrol et
   const coverData = data.Cover?.data || data.Cover;
-  
+
   if (coverData) {
     // Cover verisi attributes içinde mi?
     const coverAttrs = coverData.attributes || coverData;
@@ -457,10 +457,10 @@ export function strapiToPost(strapiPost: StrapiPost | null) {
     seoDescription: attrs.seoDescription,
     category: attrs.category?.data
       ? {
-          id: attrs.category.data.id,
-          name: attrs.category.data.attributes?.title,
-          slug: attrs.category.data.attributes?.slug,
-        }
+        id: attrs.category.data.id,
+        name: attrs.category.data.attributes?.title,
+        slug: attrs.category.data.attributes?.slug,
+      }
       : null,
   }
 }
@@ -521,7 +521,7 @@ export async function getAilelereOgutBySlug(slug: string): Promise<StrapiAileler
 // Convert Strapi ailelere ogut to our format
 export function strapiToAilelereOgut(strapiOgut: StrapiAilelereOgut) {
   const attrs = strapiOgut.attributes
-  
+
   return {
     id: strapiOgut.id,
     slug: attrs.slug,
@@ -628,7 +628,7 @@ export async function getArticlesByType(type: string) {
 
     const json = await res.json()
     // Strapi v4 response yapısı: { data: [...], meta: {...} }
-    return json.data || [] 
+    return json.data || []
   } catch (error) {
     console.error("Veri çekme hatası:", error);
     return [];
@@ -729,22 +729,26 @@ export function blocksToHtml(blocks: any[]): string {
     .join('')
 }
 
+// lib/strapi.ts
+
 export async function getRelatedArticles(
   type: string,
-  excludeSlug: string
+  excludeSlug: string,
+  page: number = 1,
+  pageSize: number = 12
 ) {
   try {
     const res = await fetch(
-      `${STRAPI_URL}/api/articles?filters[type][$eq]=${type}&filters[slug][$ne]=${excludeSlug}&sort=publishedAt:desc&populate=Cover`,
+      `${STRAPI_URL}/api/articles?filters[type][$eq]=${type}&filters[slug][$ne]=${excludeSlug}&filters[isPublished][$eq]=true&sort=publishedAt:desc&populate=Cover&pagination[page]=${page}&pagination[pageSize]=${pageSize}&pagination[withCount]=true`,
       { cache: 'no-store' }
     );
 
-    if (!res.ok) return [];
+    if (!res.ok) return { data: [], meta: null };
 
     const json = await res.json();
-    return json.data || [];
+    return json; // { data: [...], meta: { pagination: { ... } } }
   } catch (err) {
     console.error('Related article error:', err);
-    return [];
+    return { data: [], meta: null };
   }
 }

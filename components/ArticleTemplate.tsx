@@ -29,6 +29,12 @@ type Props = {
   serializeSectionsToHtml?: (sections: any[]) => string // fallback html fonksiyonu
   relatedArticles?: relatedArticle[]
   categoryLabel?: string
+  pagination?: {
+    page: number
+    pageSize: number
+    pageCount: number
+    total: number
+  }
 }
 
 export default function ArticleTemplate({
@@ -45,6 +51,7 @@ export default function ArticleTemplate({
   serializeSectionsToHtml,
   relatedArticles,
   categoryLabel,
+  pagination,
 }: Props) {
 
   const renderSection = (section: any, idx: number) => {
@@ -193,6 +200,141 @@ export default function ArticleTemplate({
     ? serializeSectionsToHtml(sections || [])
     : content
 
+  /* =======================
+     RELATED ARTICLES PAGINATION
+  ======================= */
+  const renderPagination = () => {
+    if (!pagination || pagination.pageCount <= 1) return null;
+
+    const { page, pageCount } = pagination;
+    const items = [];
+
+    // Önceki Sayfa
+    if (page > 1) {
+      items.push(
+        <a
+          key="prev"
+          href={`?page=${page - 1}`}
+          style={{
+            padding: '8px 14px',
+            borderRadius: 8,
+            background: '#fff',
+            color: '#333',
+            textDecoration: 'none',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+            fontWeight: 500
+          }}
+        >
+          ‹
+        </a>
+      );
+    }
+
+    // Sayfa Numaraları
+    // Basit bir mantık: 1, ... current-1, current, current+1, ... last
+    const showEllipsisStart = page > 3;
+    const showEllipsisEnd = page < pageCount - 2;
+
+    const start = Math.max(2, page - 1);
+    const end = Math.min(pageCount - 1, page + 1);
+
+    // İlk Sayfa Her Zaman Göster
+    items.push(
+      <a
+        key={1}
+        href={`?page=1`}
+        style={{
+          padding: '8px 14px',
+          borderRadius: 8,
+          background: page === 1 ? '#5b2b7b' : '#fff',
+          color: page === 1 ? '#fff' : '#333',
+          textDecoration: 'none',
+          boxShadow: page === 1 ? 'none' : '0 4px 12px rgba(0,0,0,0.06)',
+          fontWeight: 500
+        }}
+      >
+        1
+      </a>
+    );
+
+    if (showEllipsisStart) {
+      items.push(<span key="start-dots" style={{ padding: '8px 4px', color: '#999' }}>...</span>);
+    }
+
+    for (let i = start; i <= end; i++) {
+      if (i === 1 || i === pageCount) continue; // 1 ve son zaten ekleniyor
+      items.push(
+        <a
+          key={i}
+          href={`?page=${i}`}
+          style={{
+            padding: '8px 14px',
+            borderRadius: 8,
+            background: page === i ? '#5b2b7b' : '#fff',
+            color: page === i ? '#fff' : '#333',
+            textDecoration: 'none',
+            boxShadow: page === i ? 'none' : '0 4px 12px rgba(0,0,0,0.06)',
+            fontWeight: 500
+          }}
+        >
+          {i}
+        </a>
+      );
+    }
+
+    if (showEllipsisEnd) {
+      items.push(<span key="end-dots" style={{ padding: '8px 4px', color: '#999' }}>...</span>);
+    }
+
+    // Son Sayfa Her Zaman Göster (Eğer 1'den büyükse)
+    if (pageCount > 1) {
+      items.push(
+        <a
+          key={pageCount}
+          href={`?page=${pageCount}`}
+          style={{
+            padding: '8px 14px',
+            borderRadius: 8,
+            background: page === pageCount ? '#5b2b7b' : '#fff',
+            color: page === pageCount ? '#fff' : '#333',
+            textDecoration: 'none',
+            boxShadow: page === pageCount ? 'none' : '0 4px 12px rgba(0,0,0,0.06)',
+            fontWeight: 500
+          }}
+        >
+          {pageCount}
+        </a>
+      );
+    }
+
+    // Sonraki Sayfa
+    if (page < pageCount) {
+      items.push(
+        <a
+          key="next"
+          href={`?page=${page + 1}`}
+          style={{
+            padding: '8px 14px',
+            borderRadius: 8,
+            background: '#fff',
+            color: '#333',
+            textDecoration: 'none',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+            fontWeight: 500
+          }}
+        >
+          ›
+        </a>
+      );
+    }
+
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 40, alignItems: 'center' }}>
+        {items}
+      </div>
+    );
+  };
+
   return (
     <div>
       {contentStyles && <style dangerouslySetInnerHTML={{ __html: contentStyles }} />}
@@ -333,6 +475,10 @@ export default function ArticleTemplate({
                   </a>
                 ))}
               </div>
+
+              {/* Pagination Controls */}
+              {renderPagination()}
+
             </div>
           </section>
         )}

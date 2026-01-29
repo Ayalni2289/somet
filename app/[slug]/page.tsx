@@ -37,12 +37,21 @@ export default async function Page({
       rawArticle.type;
 
     // getRelatedArticles artık { data, meta } dönüyor
-    const { data: relatedArticlesRaw, meta } = await getRelatedArticles(
-      type,
-      slug,
-      currentPage, // page
-      12           // pageSize
-    );
+    const EXCLUDED_SLUGS = ['tiyatro-somet-sahnede', 'askin-ve-sevginin-korosu'];
+
+    let relatedArticlesRaw: any[] = [];
+    let meta: any = null;
+
+    if (!EXCLUDED_SLUGS.includes(slug)) {
+      const result = await getRelatedArticles(
+        type,
+        slug,
+        currentPage, // page
+        12           // pageSize
+      );
+      relatedArticlesRaw = result.data;
+      meta = result.meta;
+    }
 
     const relatedArticles = relatedArticlesRaw.map((item: any) => {
       const attr = item.attributes ?? item;

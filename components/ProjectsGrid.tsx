@@ -10,13 +10,13 @@ type Project = {
 }
 
 const demoProjects: Project[] = [
-  { id: 1, title: "Yeni Eğitim Binası", image: '/images/IMG_4473_3b1e0acb80.jpg', link:"merkez-insaatimiz-basladi" },
-  { id: 2, title: "Sera", image: '/images/sera9.jpg' , link:"sera"},
-  { id: 3, title: "Tiyatro SOMET", image: '/images/600290845_10163550713753563_1298238447343315439_n_fdc04562fc.jpg', link:"tiyatro-somet-sahnede" },
-  { id: 4, title: "Halk Oyunları", image: '/images/2T8R.jpg', link:"halk-oyunlari" },
-  { id: 5, title: "Aşkın ve Sevginin Korosu", image: '/images/Slayt3(2).jpg', link:"askin-ve-sevginin-korosu" },
-  { id: 6, title: "Hafif Mobilya Üretimi", image: '/images/Slayt15_0da022bc48.jpg', link:"mobilya-uretim-egitimi" },
-  { id: 7, title: "ZETTE-1", image: '/images/UYUO_1_46883e8d9c.jpg', link:"zihinsel-engellilerin-toplum-temelli-egitim-ve-rehabilitasyonlari-zette-1" },
+  { id: 1, title: "Yeni Eğitim Binası", image: '/images/IMG_4473_3b1e0acb80.jpg', link: "merkez-insaatimiz-basladi" },
+  { id: 2, title: "Sera", image: '/images/sera9.jpg', link: "sera" },
+  { id: 3, title: "Tiyatro SOMET Sahnede", image: '/images/600290845_10163550713753563_1298238447343315439_n_fdc04562fc.jpg', link: "tiyatro-somet-sahnede" },
+  { id: 4, title: "Halk Oyunları", image: '/images/2T8R.jpg', link: "halk-oyunlari" },
+  { id: 5, title: "Aşkın ve Sevginin Korosu", image: '/images/Slayt3(2).jpg', link: "askin-ve-sevginin-korosu" },
+  { id: 6, title: "Hafif Mobilya Üretimi", image: '/images/Slayt15_0da022bc48.jpg', link: "mobilya-uretim-egitimi" },
+  { id: 7, title: "ZETTE-1", image: '/images/UYUO_1_46883e8d9c.jpg', link: "zihinsel-engellilerin-toplum-temelli-egitim-ve-rehabilitasyonlari-zette-1" },
 ]
 
 

@@ -369,6 +369,7 @@ export default function ArticleTemplate({
           {heroImage && (
             <div style={{
               width: '100%',
+              maxWidth: 800,
               borderRadius: 12,
               overflow: 'hidden',
               boxShadow: '0 20px 50px rgba(0,0,0,0.18)',

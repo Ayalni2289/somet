@@ -21,6 +21,7 @@ export default [
       enabled: true, // Bunu ekledik
       headers: '*',  // Tüm başlıklara izin ver (Authorization vs. için önemli)
       origin: [
+        'https://www.sometzihinsel.org',
         'https://somet-shpt.vercel.app', // DÜZELTİLDİ: Sondaki '/' kaldırıldı
         'http://localhost:3000',
         'https://somet-production.up.railway.app' // Kendi domainini de eklemek iyidir

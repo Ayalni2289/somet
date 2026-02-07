@@ -8,17 +8,17 @@ export const metadata = {
 
 export default function BagisPage() {
   return (
-  <div>
-        <section style={{ marginTop: "-300px" }}>
-            <div className="container" style={{ flexDirection: 'column', alignItems: 'center' }}>
-            <h1 style={{ color: '#fff', margin: 0, fontSize: 44, lineHeight: 1.05 }}>Somet’e Destek Olun</h1>
-            <nav aria-label="breadcrumb" style={{ marginTop: 10 }}>
-                <Link href="/" style={{ color: '#2DD4BF', zIndex: 1, textDecoration: 'none', fontSize: 15 }}>Ana Sayfa</Link>
-                <span style={{ color: '#2DD4BF', margin: '0 10px', fontSize: 20 }}>»</span>
-                <span style={{ color: '#d1f7ef', fontSize: 15 }}>Somet’e Destek Olun</span>
-            </nav>
-            </div>
-        </section>
+    <div>
+      <section style={{ marginTop: "-300px" }}>
+        <div className="container" style={{ flexDirection: 'column', alignItems: 'center' }}>
+          <h1 style={{ color: '#fff', margin: 0, fontSize: 44, lineHeight: 1.05 }}>Somet’e Destek Olun</h1>
+          <nav aria-label="breadcrumb" style={{ marginTop: 10 }}>
+            <Link href="/" style={{ color: '#2DD4BF', zIndex: 1, textDecoration: 'none', fontSize: 15 }}>Ana Sayfa</Link>
+            <span style={{ color: '#2DD4BF', margin: '0 10px', fontSize: 20 }}>»</span>
+            <span style={{ color: '#d1f7ef', fontSize: 15 }}>Somet’e Destek Olun</span>
+          </nav>
+        </div>
+      </section>
 
       {/* Main content - image card overlapping the hero */}
       <main style={{ padding: '48px 0' }}>
@@ -51,16 +51,16 @@ export default function BagisPage() {
                 Sevgili dostlar, desteğiniz bizim için çok kıymetli. Daha iyi ve daha sürdürülebilir bir eğitim için, desteklerinizi esirgemeyin. İyi ki varsınız, sizleri seviyoruz.
               </p>
             </div>
-            <div style={{ display:"flex", flexDirection: "row",  marginTop: 100, alignItems: "center", gap: 24, justifyContent: "center", flexWrap: 'wrap'}}>
-                <img src="/images/qnb.jpg" alt="Somet’e Destek Olun" />
-                <div style={{ display:"flex", flexDirection: "column"}}>
-                    <strong style={{ fontSize: 18, lineHeight: 1.2, color: "#2C016B", fontWeight: 700 }}>Somet Zihinsel Gelişim Derneği</strong>
-                    <p>Eskişehir Vergi Dairesi: 7651702086</p>
-                    <p style={{ fontSize: 24, lineHeight: 1.2, fontWeight: 700 }}>TR28 0011 1000 0000 0092 8988 44</p>
-                </div>
-               </div>
-               <div style={{ height:100, width: '100%' }} aria-hidden="true" />
-            <img src="/images/somet-bagiscilar.jpg" alt="Somet’e Destek Olun" />
+            <div style={{ display: "flex", flexDirection: "row", marginTop: 100, alignItems: "center", gap: 24, justifyContent: "center", flexWrap: 'wrap' }}>
+              <img src="/images/qnb.jpg" alt="Somet’e Destek Olun" />
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <strong style={{ fontSize: 18, lineHeight: 1.2, color: "#2C016B", fontWeight: 700 }}>Somet Zihinsel Gelişim Derneği</strong>
+                <p>Eskişehir Vergi Dairesi: 7651702086</p>
+                <p style={{ fontSize: 24, lineHeight: 1.2, fontWeight: 700 }}>TR28 0011 1000 0000 0092 8988 44</p>
+              </div>
+            </div>
+            <div style={{ height: 100, width: '100%' }} aria-hidden="true" />
+            <img src="/images/destek.png" alt="Somet’e Destek Olun" style={{ width: '140%', marginBottom: -120, marginTop: -120 }} />
             <p style={{ textAlign: 'center', fontSize: 12, lineHeight: 1.2, fontWeight: 400 }}>Somet’e olan cömert katkılarınızdan dolayı minnettarız
             </p>
           </article>

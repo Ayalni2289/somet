@@ -60,7 +60,7 @@ export default function BagisPage() {
               </div>
             </div>
             <div style={{ height: 100, width: '100%' }} aria-hidden="true" />
-            <img src="/images/destek.png" alt="Somet’e Destek Olun" style={{ width: '130%' }} />
+            <img src="/images/destek (4).png" alt="Somet’e Destek Olun" style={{ width: '130%' }} />
             <p style={{ textAlign: 'center', fontSize: 12, lineHeight: 1.2, fontWeight: 400 }}>Somet’e olan cömert katkılarınızdan dolayı minnettarız
             </p>
           </article>

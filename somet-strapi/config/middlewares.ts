@@ -25,6 +25,7 @@ export default [
           'https://somet-shpt.vercel.app',
           'http://localhost:3000',
           'http://72.62.88.106:1337', // VPS IP adresini de güvenli listeye ekle
+          // Diğer güvenilir kaynakları da buraya ekleyebilirsiniz
         ],
     },
   },

@@ -20,12 +20,12 @@ export default [
     config: {
       enabled: true, // Bunu ekledik
       headers: '*',  // Tüm başlıklara izin ver (Authorization vs. için önemli)
-      origin: [
-        'https://www.sometzihinsel.org',
-        'https://somet-shpt.vercel.app', // DÜZELTİLDİ: Sondaki '/' kaldırıldı
-        'http://localhost:3000',
-        'https://somet-production.up.railway.app' // Kendi domainini de eklemek iyidir
-      ],
+        origin: [
+          'https://www.sometzihinsel.org',
+          'https://somet-shpt.vercel.app',
+          'http://localhost:3000',
+          'http://72.62.88.106:1337', // VPS IP adresini de güvenli listeye ekle
+        ],
     },
   },
   'strapi::poweredBy',

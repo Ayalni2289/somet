@@ -1,15 +1,14 @@
 export default [
-  'strapi::logger',
-  'strapi::errors',
+  // ... diğer middlewareler
   {
     name: 'strapi::security',
     config: {
       contentSecurityPolicy: {
         useDefaults: true,
         directives: {
-          'connect-src': ["'self'", 'https:'],
-          'img-src': ["'self'", 'data:', 'blob:', 'res.cloudinary.com'],
-          'media-src': ["'self'", 'data:', 'blob:', 'res.cloudinary.com'],
+          'connect-src': ["'self'", 'https:', 'https://api.sometzihinsel.org'], // Yeni API adresin
+          'img-src': ["'self'", 'data:', 'blob:', 'res.cloudinary.com', 'https://api.sometzihinsel.org'],
+          'media-src': ["'self'", 'data:', 'blob:', 'res.cloudinary.com', 'https://api.sometzihinsel.org'],
           upgradeInsecureRequests: null,
         },
       },
@@ -18,21 +17,16 @@ export default [
   {
     name: 'strapi::cors',
     config: {
-      enabled: true, // Bunu ekledik
-      headers: '*',  // Tüm başlıklara izin ver (Authorization vs. için önemli)
-        origin: [
-          'https://www.sometzihinsel.org',
-          'https://somet-shpt.vercel.app',
-          'http://localhost:3000',
-          'https://72.62.88.106:1337', // VPS IP adresini de güvenli listeye ekle
-          // Diğer güvenilir kaynakları da buraya ekleyebilirsiniz
-        ],
+      enabled: true,
+      headers: '*',
+      origin: [
+        'https://www.sometzihinsel.org',
+        'https://sometzihinsel.org',
+        'https://somet-shpt.vercel.app',
+        'http://localhost:3000',
+        'https://api.sometzihinsel.org' // Backend'in kendi domaini
+      ],
     },
   },
-  'strapi::poweredBy',
-  'strapi::query',
-  'strapi::body',
-  'strapi::session',
-  'strapi::favicon',
-  'strapi::public',
+  // ... diğer middlewareler
 ];
